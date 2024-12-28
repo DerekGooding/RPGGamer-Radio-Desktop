@@ -10,8 +10,8 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Windows
         private string _applicationTitle = "WPF UI - RPGGamer_Radio_Desktop";
 
         [ObservableProperty]
-        private ObservableCollection<object> _menuItems = new()
-        {
+        private ObservableCollection<object> _menuItems =
+        [
             new NavigationViewItem()
             {
                 Content = "Home",
@@ -20,17 +20,11 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Windows
             },
             new NavigationViewItem()
             {
-                Content = "Data",
-                Icon = new SymbolIcon { Symbol = SymbolRegular.DataHistogram24 },
-                TargetPageType = typeof(DataPage)
-            },
-            new NavigationViewItem()
-            {
                 Content = "Songs",
                 Icon = new SymbolIcon { Symbol = SymbolRegular.MusicNote224 },
                 TargetPageType = typeof(SongsPage)
             }
-        };
+        ];
 
         [ObservableProperty]
         private ObservableCollection<object> _footerMenuItems = new()
