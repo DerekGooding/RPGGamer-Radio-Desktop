@@ -25,20 +25,18 @@
         <MediaElement x:Name="MyPlayer" LoadedBehavior="Manual"/>
         <TextBlock Text="{Binding ViewModel.Status, Mode=OneWay}" />
         <Grid>
-            <ListBox
+            <ui:VirtualizingGridView
                 ItemsSource="{Binding ViewModel.FoundLinks, Mode=OneWay}"
                 SelectedItem="{Binding ViewModel.SelectedSong, Mode=TwoWay}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type models:Song}">
-                        <StackPanel>
-                            <TextBlock Text="{Binding Id, Mode=OneWay}" />
-                            <TextBox Text="{Binding Url, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent"/>
+                        <StackPanel Width="300">
                             <TextBlock Text="{Binding Title, Mode=OneWay}" />
                             <TextBlock Text="{Binding Game, Mode=OneWay}" />
                         </StackPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
-            </ListBox>
+            </ui:VirtualizingGridView>
         </Grid>
 
     </StackPanel>

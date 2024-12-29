@@ -1,11 +1,13 @@
 ﻿using NAudio.Wave;
+using RPGGamer_Radio_Desktop.Helpers;
 using RPGGamer_Radio_Desktop.Models;
 using RPGGamer_Radio_Desktop.Services;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Net.Http;
-using System.Text;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Threading;
 using Wpf.Ui.Controls;
 
@@ -21,7 +23,19 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
             _webhookService = webhookService;
             _databaseService = databaseService;
             _mediaElementService = mediaElementService;
-            FoundLinks = _databaseService.Read().Take(100).ToList();
+            object foundLinksLock = new();
+            BindingOperations.EnableCollectionSynchronization(FoundLinks, foundLinksLock);
+
+            LoadData();
+        }
+
+        private void LoadData()
+        {
+            new Thread(() =>
+            {
+                foreach (Song item in _databaseService.Read())
+                    FoundLinks.Add(item);
+            }).Start();
         }
 
         private readonly WebhookService _webhookService;
@@ -70,7 +84,7 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         private bool _isRequesting = true;
 
         [ObservableProperty]
-        private List<Song> _foundLinks;
+        private ObservableCollection<Song> _foundLinks = [];
 
         [ObservableProperty]
         private ObservableCollection<Song> _filteredSongs = [];
@@ -82,7 +96,10 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         public Stack<Song> _previousSongs = [];
 
 
-        public void OnNavigatedTo() { }
+        public void OnNavigatedTo()
+        {
+            //new Thread(async () => await LookForLinks()).Start();
+        }
 
         public void OnNavigatedFrom() { }
 
@@ -114,10 +131,11 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         {
             string dataUrl = Path.Combine(_webhookService.ROOT, "data_");
             var tasks = new List<Task>();
-            //const int range = 1000;
+            //const int range = 30;
             const int range = 4585;
+            const int fromrange = 3221;
 
-            for (int i = 0; i <= range; i++)
+            for (int i = 3221; i <= range; i++)
             {
                 string digit = i.ToString();
                 while (digit.Length < 4)
@@ -136,45 +154,72 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
             using HttpClient client = new();
             HttpResponseMessage response = await client.GetAsync(url);
             Stream streamToReadFrom = await response.Content.ReadAsStreamAsync();
-            using StreamReader sr = new(streamToReadFrom, Encoding.UTF8);
-            string line = sr.ReadLine() ?? "";
+            //using StreamReader sr = new(streamToReadFrom, Encoding.UTF8);
+            //string line = sr.ReadLine() ?? "";
 
-            line = Decode(line);
+            //line = Decode(line);
 
-            if (line.Contains("DOCTYPE"))
-                return;
+            //if (line.Contains("DOCTYPE"))
+            //    return;
 
-            var gameSplit = line.Split("TALB", StringSplitOptions.None);
-            string game = string.Empty;
-            if (gameSplit.Length < 2)
-                game = gameSplit[0];
-            else
-                game = gameSplit[1].Split("TPE1", StringSplitOptions.None)[0];
+            //var gameSplit = line.Split("TALB", StringSplitOptions.None);
+            //string game = string.Empty;
+            //if (gameSplit.Length < 2)
+            //    game = gameSplit[0];
+            //else
+            //    game = gameSplit[1].Split("TPE1", StringSplitOptions.None)[0];
 
-            var titleSplit = line.Split("TIT2", StringSplitOptions.None);
-            string title = string.Empty;
-            if (titleSplit.Length < 2)
-                title = titleSplit[0];
-            else
-                title = titleSplit[1].Split("TRCK", StringSplitOptions.None)[0];
+            //var titleSplit = line.Split("TIT2", StringSplitOptions.None);
+            //string title = string.Empty;
+            //if (titleSplit.Length < 2)
+            //    title = titleSplit[0];
+            //else
+            //    title = titleSplit[1].Split("TRCK", StringSplitOptions.None)[0];
             //string title = $"{id}";
             //string game = "Nothing";
 
+            //using StreamReader sr = new(streamToReadFrom, Encoding.UTF8);
+            //{
+            //    string line = sr.ReadLine() ?? "";
+            //    Song song = new()
+            //    {
+            //        Id = id,
+            //        Url = "UTF8",
+            //        Title = line,
+            //        Game = ""
+            //    };
+            //    _databaseService.Insert(song);
+            //}
+            var fileAbstraction = new StreamFileAbstraction(streamToReadFrom, "audio.mp3");
+            var file = TagLib.File.Create(fileAbstraction);
             Song song = new()
             {
                 Id = id,
                 Url = url,
-                Title = title,
-                Game = game
+                Title = file.Tag.Title ?? "Unknown",
+                Game = file.Tag.Album ?? "Unknown"
             };
-
             _databaseService.Insert(song);
 
-            await Application.Current.Dispatcher.InvokeAsync(() =>
-            {
-                Status = $"{id}";
-                FoundLinks.Add(song);
-            });
+            //using StreamReader sr3 = new(streamToReadFrom, Encoding.UTF8);
+            //{
+            //    string line = sr3.ReadLine() ?? "";
+            //    Song song = new()
+            //    {
+            //        Id = id,
+            //        Url = "UTF8",
+            //        Title = line,
+            //        Game = ""
+            //    };
+            //    _databaseService.Insert(song);
+            //}
+
+
+            //await Application.Current.Dispatcher.InvokeAsync(() =>
+            //{
+            //    Status = $"{id}";
+            //    FoundLinks.Add(song);
+            //});
         }
 
         private static string Decode(string input) => WebhookService.MyRegex().Replace(input, string.Empty);
@@ -263,8 +308,7 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
 
         public void PlayRandomSong()
         {
-            Random rand = new();
-            SelectedSong = FilteredSongs[rand.Next(FilteredSongs.Count)];
+            SelectedSong = FilteredSongs[Random.Shared.Next(FilteredSongs.Count - 1)];
 
             if (SelectedSong is Song song)
                 PlayMedia(song);

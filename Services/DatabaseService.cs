@@ -44,7 +44,7 @@ public class DatabaseService
             int index = list.FindIndex(s => s.Id == song.Id);
             list[index] = song;
             using StreamWriter writer = new(_database, false);
-            writer.WriteLine($"sep={separator}");
+            //writer.WriteLine($"sep={separator}");
             foreach (Song s in list)
                 writer.WriteLine(SongToLine(s));
         }));
@@ -58,7 +58,7 @@ public class DatabaseService
             Song found = list.Find(s => s.Id == song.Id);
             list.Remove(found);
             using StreamWriter writer = new(_database, false);
-            writer.WriteLine($"sep={separator}");
+            //writer.WriteLine($"sep={separator}");
             foreach (Song s in list)
                 writer.WriteLine(SongToLine(s));
         }));
@@ -69,7 +69,7 @@ public class DatabaseService
         return reader
             .ReadToEnd()
             .Split(Environment.NewLine)
-            .Skip(1)
+            //.Skip(1)
             .Where(line => !string.IsNullOrEmpty(line))
             .Select(LineToSong)
             .ToList();
