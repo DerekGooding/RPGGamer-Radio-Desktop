@@ -1,14 +1,14 @@
-﻿using System.IO;
-using System.Reflection;
-using System.Windows.Threading;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using RPGGamer_Radio_Desktop.Services;
 using RPGGamer_Radio_Desktop.ViewModels.Pages;
 using RPGGamer_Radio_Desktop.ViewModels.Windows;
-using RPGGamer_Radio_Desktop.Services;
 using RPGGamer_Radio_Desktop.Views.Pages;
 using RPGGamer_Radio_Desktop.Views.Windows;
+using System.IO;
+using System.Reflection;
+using System.Windows.Threading;
 using Wpf.Ui;
 
 namespace RPGGamer_Radio_Desktop
@@ -44,6 +44,9 @@ namespace RPGGamer_Radio_Desktop
 
                 services.AddSingleton<AudioService>();
                 services.AddSingleton<WebhookService>();
+                services.AddSingleton<DatabaseService>();
+
+                services.AddSingleton<MediaElementService>();
 
                 // Main window with navigation
                 services.AddSingleton<INavigationWindow, MainWindow>();
@@ -53,6 +56,7 @@ namespace RPGGamer_Radio_Desktop
                 services.AddSingleton<DashboardViewModel>();
                 services.AddSingleton<SettingsPage>();
                 services.AddSingleton<SettingsViewModel>();
+
                 services.AddSingleton<SongsPage>();
                 services.AddSingleton<SongsViewModel>();
             }).Build();

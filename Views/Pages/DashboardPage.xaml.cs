@@ -1,18 +1,17 @@
 ﻿using RPGGamer_Radio_Desktop.ViewModels.Pages;
 using Wpf.Ui.Controls;
 
-namespace RPGGamer_Radio_Desktop.Views.Pages
+namespace RPGGamer_Radio_Desktop.Views.Pages;
+
+public partial class DashboardPage : INavigableView<DashboardViewModel>
 {
-    public partial class DashboardPage : INavigableView<DashboardViewModel>
+    public DashboardViewModel ViewModel { get; }
+
+    public DashboardPage(DashboardViewModel viewModel)
     {
-        public DashboardViewModel ViewModel { get; }
+        ViewModel = viewModel;
+        DataContext = this;
 
-        public DashboardPage(DashboardViewModel viewModel)
-        {
-            ViewModel = viewModel;
-            DataContext = this;
-
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

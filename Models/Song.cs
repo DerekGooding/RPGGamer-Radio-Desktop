@@ -1,3 +1,3 @@
 ﻿namespace RPGGamer_Radio_Desktop.Models;
 
-public record struct Song(int Id, int UrlId, string Url, string Game, string Title);
+public record struct Song(int Id, string Url, string Game, string Title);

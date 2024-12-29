@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="clr-namespace:RPGGamer_Radio_Desktop.Helpers"
     xmlns:local="clr-namespace:RPGGamer_Radio_Desktop.Views.Pages"
+    xmlns:models="clr-namespace:RPGGamer_Radio_Desktop.Models"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Title="SongsPage"
@@ -22,11 +23,23 @@
 
     <StackPanel>
         <MediaElement x:Name="MyPlayer" LoadedBehavior="Manual"/>
-        <TextBlock
-            FontSize="20"
-            FontWeight="Medium"
-            Text="Personalization" />
-        <TextBlock Margin="0,12,0,0" Text="Theme" />
+        <TextBlock Text="{Binding ViewModel.Status, Mode=OneWay}" />
+        <Grid>
+            <ListBox
+                ItemsSource="{Binding ViewModel.FoundLinks, Mode=OneWay}"
+                SelectedItem="{Binding ViewModel.SelectedSong, Mode=TwoWay}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type models:Song}">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Id, Mode=OneWay}" />
+                            <TextBox Text="{Binding Url, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent"/>
+                            <TextBlock Text="{Binding Title, Mode=OneWay}" />
+                            <TextBlock Text="{Binding Game, Mode=OneWay}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ListBox>
+        </Grid>
 
     </StackPanel>
 </Page>

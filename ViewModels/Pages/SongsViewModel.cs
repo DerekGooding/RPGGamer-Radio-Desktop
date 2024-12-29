@@ -1,24 +1,33 @@
 ﻿using NAudio.Wave;
-using NAudio.WaveFormRenderer;
 using RPGGamer_Radio_Desktop.Models;
 using RPGGamer_Radio_Desktop.Services;
-using RPGGamer_Radio_Desktop.Views.Pages;
-using RPGGamer_Radio_Desktop.Views.Windows;
-using System.Drawing.Imaging;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Windows.Controls;
-using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Wpf.Ui.Controls;
 
 namespace RPGGamer_Radio_Desktop.ViewModels.Pages
 {
-    public partial class SongsViewModel(WebhookService webhookService, SongsPage songsPage) : ObservableObject, INavigationAware
+    public partial class SongsViewModel : ObservableObject, INavigationAware
     {
-        private WebhookService _webhookService = webhookService;
-        private MediaElement _mediaElement = songsPage.MyPlayer;
+        public SongsViewModel(
+            WebhookService webhookService,
+            DatabaseService databaseService,
+            MediaElementService mediaElementService)
+        {
+            _webhookService = webhookService;
+            _databaseService = databaseService;
+            _mediaElementService = mediaElementService;
+            FoundLinks = _databaseService.Read().Take(100).ToList();
+        }
+
+        private readonly WebhookService _webhookService;
+        private readonly DatabaseService _databaseService;
+        private readonly MediaElementService _mediaElementService;
+
         public double FillWidth { get; set; }
 
         [ObservableProperty]
@@ -27,8 +36,6 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         {
             if (string.IsNullOrEmpty(value))
                 _status = "Ready";
-            //else
-            //    _status = value;
         }
 
         [ObservableProperty]
@@ -38,8 +45,6 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         {
             if (string.IsNullOrEmpty(value))
                 _songCount = "No Songs";
-            //else
-            //    _songCount = value;
         }
         [ObservableProperty]
         private string _duration = string.Empty;
@@ -57,7 +62,7 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         partial void OnSelectedSongChanged(Song? value)
         {
             if(value is Song song)
-                PlaySong(song);
+                PlayMedia(song);
         }
         [ObservableProperty]
         private bool _isPlaying = false;
@@ -65,46 +70,65 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         private bool _isRequesting = true;
 
         [ObservableProperty]
-        private List<Song> _foundLinks = [];
+        private List<Song> _foundLinks;
+
         [ObservableProperty]
-        private List<Song> _filteredSongs = [];
-        [ObservableProperty]
-        public List<Song> _allSongs = [];
+        private ObservableCollection<Song> _filteredSongs = [];
+
+        //[ObservableProperty]
+        //public List<Song> _allSongs = [];
+
         [ObservableProperty]
         public Stack<Song> _previousSongs = [];
+
+
         public void OnNavigatedTo() { }
+
         public void OnNavigatedFrom() { }
 
+        //private void ReadSongs()
+        //{
+        //    FoundLinks.Clear();
+        //    List<Song> allSongs = DatabaseHelper.Read<Song>(DatabaseHelper.Target.Database);
+        //    if (allSongs.Count == 0)
+        //    {
+        //        DatabaseHelper.ImportFromOnlineAsync();
+        //        allSongs = DatabaseHelper.Read<Song>(DatabaseHelper.Target.Database);
+        //    }
 
-        private void ReadSongs()
-        {
-            FoundLinks.Clear();
+        //    if (allSongs.Count == 0)
+        //        return;
 
-            foreach (var item in AllSongs)
-                FoundLinks.Add(item);
-
-            Query();
-        }
+        //    foreach (var item in allSongs)
+        //        FoundLinks.Add(item);
+        //    Query();
+        //}
 
         public void Query()
         {
-            FilteredSongs = [.. FoundLinks.Where(x => x.Game?.ToLower().Contains(Search.ToLower()) == true).OrderBy(s => s.Url)];
+            FilteredSongs = [.. FoundLinks.Where(x => x.Game?.ToLower().Contains(Search, StringComparison.CurrentCultureIgnoreCase) == true).OrderBy(s => s.Url)];
             SongCount = $"{FilteredSongs.Count} songs";
         }
 
-        public Task LookForLinksAsync()
+        public async Task LookForLinks()
         {
             string dataUrl = Path.Combine(_webhookService.ROOT, "data_");
-            for (int i = 0; i < 4000; i++)
+            var tasks = new List<Task>();
+            //const int range = 1000;
+            const int range = 4585;
+
+            for (int i = 0; i <= range; i++)
             {
                 string digit = i.ToString();
-                char dataNumber = digit[0];
                 while (digit.Length < 4)
                     digit = "0" + digit;
+                char dataNumber = digit[0];
                 string url = $"{dataUrl}{dataNumber}/{digit}.dat";
-                _ = ReadSongInfoAsync(url, i);
+
+                await ReadSongInfoAsync(url, i);
             }
-            return Task.CompletedTask;
+
+            Application.Current.Dispatcher.Invoke(() => Status = "");
         }
 
         private async Task ReadSongInfoAsync(string url, int id)
@@ -133,6 +157,8 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
                 title = titleSplit[0];
             else
                 title = titleSplit[1].Split("TRCK", StringSplitOptions.None)[0];
+            //string title = $"{id}";
+            //string game = "Nothing";
 
             Song song = new()
             {
@@ -142,17 +168,25 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
                 Game = game
             };
 
-            ReadSongs();
+            _databaseService.Insert(song);
+
+            await Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                Status = $"{id}";
+                FoundLinks.Add(song);
+            });
         }
 
         private static string Decode(string input) => WebhookService.MyRegex().Replace(input, string.Empty);
 
         private bool subscribed = false;
-        private void PlaySong(Song song) => PlaySong(song, false);
-        private void PlaySong(Song song, bool isPrevious)
+
+        private void PlayMedia(Song song, bool isPrevious = false)
         {
-            _mediaElement.Source = new Uri(song.Url);
-            _mediaElement.Play();
+            if (_mediaElementService.MediaElement is not MediaElement mediaElement) return;
+
+            mediaElement.Source = new(song.Url);
+            mediaElement.Play();
             SetVolume();
             if (!isPrevious)
                 PreviousSongs.Push(song);
@@ -162,29 +196,29 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
             IsPlaying = true;
             if (!subscribed)
             {
-                _mediaElement.MediaEnded += Element_MediaEnded;
+                mediaElement.MediaEnded += Element_MediaEnded;
                 subscribed = true;
             }
-            _webhookService.WaveFormSource = new BitmapImage();
-            new Thread(() =>
-            {
-                using var waveStream = new WaveFileReader(song.Url);
-                var image = _webhookService.WaveFormRenderer.Render(waveStream, new MaxPeakProvider(), new StandardWaveFormRendererSettings() { Width = 1650 });
-                if (image == null) return;
-                using var ms = new MemoryStream();
-                image.Save(ms, ImageFormat.Bmp);
-                ms.Seek(0, SeekOrigin.Begin);
+            //_webhookService.WaveFormSource = new BitmapImage();
+            //new Thread(() =>
+            //{
+            //    using WaveFileReader waveStream = new(song.Url);
+            //    var image = _webhookService.WaveFormRenderer.Render(waveStream, new MaxPeakProvider(), new StandardWaveFormRendererSettings() { Width = 1650 });
+            //    if (image == null) return;
+            //    using var ms = new MemoryStream();
+            //    image.Save(ms, ImageFormat.Bmp);
+            //    ms.Seek(0, SeekOrigin.Begin);
 
-                var bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.StreamSource = ms;
-                bitmapImage.EndInit();
-                bitmapImage.Freeze();
+            //    var bitmapImage = new BitmapImage();
+            //    bitmapImage.BeginInit();
+            //    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+            //    bitmapImage.StreamSource = ms;
+            //    bitmapImage.EndInit();
+            //    bitmapImage.Freeze();
 
-                Dispatcher.CurrentDispatcher.Invoke(() => _webhookService.WaveFormSource = bitmapImage);
+            //    Dispatcher.CurrentDispatcher.Invoke(() => _webhookService.WaveFormSource = bitmapImage);
 
-            }).Start();
+            //}).Start();
         }
 
         private void CheckHistory()
@@ -198,7 +232,11 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
                 PreviousSongs.Push(temp.Pop());
         }
 
-        private void SetVolume() => _mediaElement.Volume = Volume;
+        private void SetVolume()
+        {
+            if (_mediaElementService.MediaElement is not MediaElement mediaElement) return;
+            mediaElement.Volume = Volume;
+        }
 
         private void StartTimer()
         {
@@ -212,11 +250,13 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
 
         void TimerTick(object? sender, EventArgs e)
         {
-            if (_mediaElement.NaturalDuration.HasTimeSpan)
-            {
-                Duration = string.Format("{0} / {1}", _mediaElement.Position.ToString(@"mm\:ss"), _mediaElement.NaturalDuration.TimeSpan.ToString(@"mm\:ss"));
-                FillWidth = _mediaElement.Position.TotalMilliseconds / _mediaElement.NaturalDuration.TimeSpan.TotalMilliseconds * 800;
-            }
+            if (_mediaElementService.MediaElement is not MediaElement mediaElement || !mediaElement.NaturalDuration.HasTimeSpan) return;
+
+            Duration = string.Format(
+                "{0} / {1}",
+                mediaElement.Position.ToString(@"mm\:ss"),
+                mediaElement.NaturalDuration.TimeSpan.ToString(@"mm\:ss"));
+            FillWidth = mediaElement.Position.TotalMilliseconds / mediaElement.NaturalDuration.TimeSpan.TotalMilliseconds * 800;
         }
 
         private void Element_MediaEnded(object sender, RoutedEventArgs e) => PlayRandomSong();
@@ -227,12 +267,12 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
             SelectedSong = FilteredSongs[rand.Next(FilteredSongs.Count)];
 
             if (SelectedSong is Song song)
-                PlaySong(song);
+                PlayMedia(song);
         }
         public void PlayPrevious()
         {
             if (PreviousSongs.Count == 0) return;
-            PlaySong(PreviousSongs.Pop(), true);
+            PlayMedia(PreviousSongs.Pop(), true);
         }
 
         public static async Task SaveSong(Song song)
@@ -249,15 +289,16 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
 
         public void Pause()
         {
+            if (_mediaElementService.MediaElement is not MediaElement mediaElement) return;
             if (IsPlaying)
             {
-                _mediaElement.Pause();
+                mediaElement.Pause();
                 IsPlaying = false;
             }
             else
             {
                 if (SelectedSong == null) PlayRandomSong();
-                _mediaElement.Play();
+                mediaElement.Play();
                 IsPlaying = true;
             }
         }

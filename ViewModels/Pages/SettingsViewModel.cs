@@ -24,7 +24,7 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         private void InitializeViewModel()
         {
             CurrentTheme = ApplicationThemeManager.GetAppTheme();
-            AppVersion = $"UiDesktopApp1 - {GetAssemblyVersion()}";
+            AppVersion = $"RPGGamer Radio Desktop - {GetAssemblyVersion()}";
 
             _isInitialized = true;
         }
