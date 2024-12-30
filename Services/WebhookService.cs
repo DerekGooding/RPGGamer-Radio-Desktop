@@ -1,5 +1,4 @@
 ﻿using NAudio.WaveFormRenderer;
-using System.Text.RegularExpressions;
 using System.Windows.Media;
 
 namespace RPGGamer_Radio_Desktop.Services;
@@ -10,7 +9,4 @@ public partial class WebhookService
 
     public WaveFormRenderer WaveFormRenderer { get; } = new();
     public ImageSource? WaveFormSource { get; set; }
-
-    [GeneratedRegex("[^\\u0020-\\u007E]")]
-    public static partial Regex MyRegex();
 }

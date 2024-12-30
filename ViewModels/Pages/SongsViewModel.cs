@@ -1,5 +1,4 @@
-﻿using NAudio.Wave;
-using RPGGamer_Radio_Desktop.Helpers;
+﻿using RPGGamer_Radio_Desktop.Helpers;
 using RPGGamer_Radio_Desktop.Models;
 using RPGGamer_Radio_Desktop.Services;
 using System.Collections.ObjectModel;
@@ -8,7 +7,6 @@ using System.IO;
 using System.Net.Http;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Threading;
 using Wpf.Ui.Controls;
 
 namespace RPGGamer_Radio_Desktop.ViewModels.Pages
@@ -18,29 +16,44 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         public SongsViewModel(
             WebhookService webhookService,
             DatabaseService databaseService,
-            MediaElementService mediaElementService)
+            MediaElementService mediaElementService,
+            NotificationService notificationService)
         {
             _webhookService = webhookService;
             _databaseService = databaseService;
             _mediaElementService = mediaElementService;
+            _notificationService = notificationService;
             object foundLinksLock = new();
-            BindingOperations.EnableCollectionSynchronization(FoundLinks, foundLinksLock);
+            BindingOperations.EnableCollectionSynchronization(AllSongs, foundLinksLock);
 
             LoadData();
         }
 
+        private bool _suppressNotifications;
+
+        protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+        {
+            if (!_suppressNotifications)
+            {
+                base.OnPropertyChanged(e);
+            }
+        }
+
         private void LoadData()
         {
+            _suppressNotifications = true;
             new Thread(() =>
             {
-                foreach (Song item in _databaseService.Read())
-                    FoundLinks.Add(item);
+                foreach (Song item in _databaseService.Read().Take(20))
+                    AllSongs.Add(item);
+                _suppressNotifications = false;
             }).Start();
         }
 
         private readonly WebhookService _webhookService;
         private readonly DatabaseService _databaseService;
         private readonly MediaElementService _mediaElementService;
+        private readonly NotificationService _notificationService;
 
         public double FillWidth { get; set; }
 
@@ -53,89 +66,46 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         }
 
         [ObservableProperty]
-        private string _songCount = "No Songs";
-
-        partial void OnSongCountChanged(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-                _songCount = "No Songs";
-        }
-        [ObservableProperty]
         private string _duration = string.Empty;
 
         [ObservableProperty]
         private double _volume = 0.5;
-        partial void OnVolumeChanged(double value) => SetVolume();
+        partial void OnVolumeChanged(double value)
+        {
+            if (_mediaElementService.MediaElement is not MediaElement mediaElement) return;
+            mediaElement.Volume = Volume;
+        }
 
         [ObservableProperty]
         private string _search = string.Empty;
-        partial void OnSearchChanged(string value) => Query();
 
         [ObservableProperty]
-        private Song? _selectedSong = null;
+        private Song? _selectedSong;
         partial void OnSelectedSongChanged(Song? value)
         {
             if(value is Song song)
                 PlayMedia(song);
         }
+
         [ObservableProperty]
-        private bool _isPlaying = false;
+        private bool _isPlaying;
+
         [ObservableProperty]
         private bool _isRequesting = true;
 
         [ObservableProperty]
-        private ObservableCollection<Song> _foundLinks = [];
+        private ObservableCollection<Song> _allSongs = [];
 
-        [ObservableProperty]
-        private ObservableCollection<Song> _filteredSongs = [];
-
-        //[ObservableProperty]
-        //public List<Song> _allSongs = [];
-
-        [ObservableProperty]
-        public Stack<Song> _previousSongs = [];
-
-
-        public void OnNavigatedTo()
-        {
-            //new Thread(async () => await LookForLinks()).Start();
-        }
-
+        public void OnNavigatedTo() { }
         public void OnNavigatedFrom() { }
-
-        //private void ReadSongs()
-        //{
-        //    FoundLinks.Clear();
-        //    List<Song> allSongs = DatabaseHelper.Read<Song>(DatabaseHelper.Target.Database);
-        //    if (allSongs.Count == 0)
-        //    {
-        //        DatabaseHelper.ImportFromOnlineAsync();
-        //        allSongs = DatabaseHelper.Read<Song>(DatabaseHelper.Target.Database);
-        //    }
-
-        //    if (allSongs.Count == 0)
-        //        return;
-
-        //    foreach (var item in allSongs)
-        //        FoundLinks.Add(item);
-        //    Query();
-        //}
-
-        public void Query()
-        {
-            FilteredSongs = [.. FoundLinks.Where(x => x.Game?.ToLower().Contains(Search, StringComparison.CurrentCultureIgnoreCase) == true).OrderBy(s => s.Url)];
-            SongCount = $"{FilteredSongs.Count} songs";
-        }
 
         public async Task LookForLinks()
         {
             string dataUrl = Path.Combine(_webhookService.ROOT, "data_");
             var tasks = new List<Task>();
-            //const int range = 30;
             const int range = 4585;
-            const int fromrange = 3221;
 
-            for (int i = 3221; i <= range; i++)
+            for (int i = 1; i <= range; i++)
             {
                 string digit = i.ToString();
                 while (digit.Length < 4)
@@ -154,42 +124,6 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
             using HttpClient client = new();
             HttpResponseMessage response = await client.GetAsync(url);
             Stream streamToReadFrom = await response.Content.ReadAsStreamAsync();
-            //using StreamReader sr = new(streamToReadFrom, Encoding.UTF8);
-            //string line = sr.ReadLine() ?? "";
-
-            //line = Decode(line);
-
-            //if (line.Contains("DOCTYPE"))
-            //    return;
-
-            //var gameSplit = line.Split("TALB", StringSplitOptions.None);
-            //string game = string.Empty;
-            //if (gameSplit.Length < 2)
-            //    game = gameSplit[0];
-            //else
-            //    game = gameSplit[1].Split("TPE1", StringSplitOptions.None)[0];
-
-            //var titleSplit = line.Split("TIT2", StringSplitOptions.None);
-            //string title = string.Empty;
-            //if (titleSplit.Length < 2)
-            //    title = titleSplit[0];
-            //else
-            //    title = titleSplit[1].Split("TRCK", StringSplitOptions.None)[0];
-            //string title = $"{id}";
-            //string game = "Nothing";
-
-            //using StreamReader sr = new(streamToReadFrom, Encoding.UTF8);
-            //{
-            //    string line = sr.ReadLine() ?? "";
-            //    Song song = new()
-            //    {
-            //        Id = id,
-            //        Url = "UTF8",
-            //        Title = line,
-            //        Game = ""
-            //    };
-            //    _databaseService.Insert(song);
-            //}
             var fileAbstraction = new StreamFileAbstraction(streamToReadFrom, "audio.mp3");
             var file = TagLib.File.Create(fileAbstraction);
             Song song = new()
@@ -200,137 +134,49 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
                 Game = file.Tag.Album ?? "Unknown"
             };
             _databaseService.Insert(song);
-
-            //using StreamReader sr3 = new(streamToReadFrom, Encoding.UTF8);
-            //{
-            //    string line = sr3.ReadLine() ?? "";
-            //    Song song = new()
-            //    {
-            //        Id = id,
-            //        Url = "UTF8",
-            //        Title = line,
-            //        Game = ""
-            //    };
-            //    _databaseService.Insert(song);
-            //}
-
-
-            //await Application.Current.Dispatcher.InvokeAsync(() =>
-            //{
-            //    Status = $"{id}";
-            //    FoundLinks.Add(song);
-            //});
         }
 
-        private static string Decode(string input) => WebhookService.MyRegex().Replace(input, string.Empty);
+        private bool _subscribed;
 
-        private bool subscribed = false;
-
-        private void PlayMedia(Song song, bool isPrevious = false)
+        private void PlayMedia(Song song)
         {
             if (_mediaElementService.MediaElement is not MediaElement mediaElement) return;
+            if(!_subscribed)
+            {
+                mediaElement.MediaEnded += Element_MediaEnded;
+                _subscribed = true;
+            }
+
+            new Thread(async()=> await _notificationService.ShowNotificationAsync(song.Game, song.Title)).Start();
 
             mediaElement.Source = new(song.Url);
             mediaElement.Play();
-            SetVolume();
-            if (!isPrevious)
-                PreviousSongs.Push(song);
-            CheckHistory();
+
             Status = $"{song.Game} | {song.Title}";
 
             IsPlaying = true;
-            if (!subscribed)
-            {
-                mediaElement.MediaEnded += Element_MediaEnded;
-                subscribed = true;
-            }
-            //_webhookService.WaveFormSource = new BitmapImage();
-            //new Thread(() =>
-            //{
-            //    using WaveFileReader waveStream = new(song.Url);
-            //    var image = _webhookService.WaveFormRenderer.Render(waveStream, new MaxPeakProvider(), new StandardWaveFormRendererSettings() { Width = 1650 });
-            //    if (image == null) return;
-            //    using var ms = new MemoryStream();
-            //    image.Save(ms, ImageFormat.Bmp);
-            //    ms.Seek(0, SeekOrigin.Begin);
-
-            //    var bitmapImage = new BitmapImage();
-            //    bitmapImage.BeginInit();
-            //    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-            //    bitmapImage.StreamSource = ms;
-            //    bitmapImage.EndInit();
-            //    bitmapImage.Freeze();
-
-            //    Dispatcher.CurrentDispatcher.Invoke(() => _webhookService.WaveFormSource = bitmapImage);
-
-            //}).Start();
         }
 
-        private void CheckHistory()
+        [RelayCommand]
+        public void PlayByID()
         {
-            if (PreviousSongs.Count < 50) return;
-            Stack<Song> temp = new();
-            for (int i = 0; i < 10; i++)
-                temp.Push(PreviousSongs.Pop());
-            PreviousSongs.Clear();
-            for (int i = 0; i < 10; i++)
-                PreviousSongs.Push(temp.Pop());
-        }
-
-        private void SetVolume()
-        {
-            if (_mediaElementService.MediaElement is not MediaElement mediaElement) return;
-            mediaElement.Volume = Volume;
-        }
-
-        private void StartTimer()
-        {
-            DispatcherTimer timer = new()
-            {
-                Interval = TimeSpan.FromMilliseconds(20)
-            };
-            timer.Tick += TimerTick;
-            timer.Start();
-        }
-
-        void TimerTick(object? sender, EventArgs e)
-        {
-            if (_mediaElementService.MediaElement is not MediaElement mediaElement || !mediaElement.NaturalDuration.HasTimeSpan) return;
-
-            Duration = string.Format(
-                "{0} / {1}",
-                mediaElement.Position.ToString(@"mm\:ss"),
-                mediaElement.NaturalDuration.TimeSpan.ToString(@"mm\:ss"));
-            FillWidth = mediaElement.Position.TotalMilliseconds / mediaElement.NaturalDuration.TimeSpan.TotalMilliseconds * 800;
+            if (!int.TryParse(Search, out int id)) return;
+            Search = string.Empty;
+            SelectedSong = AllSongs[id];
         }
 
         private void Element_MediaEnded(object sender, RoutedEventArgs e) => PlayRandomSong();
 
+        [RelayCommand]
         public void PlayRandomSong()
         {
-            SelectedSong = FilteredSongs[Random.Shared.Next(FilteredSongs.Count - 1)];
+            SelectedSong = AllSongs[Random.Shared.Next(AllSongs.Count - 1)];
 
             if (SelectedSong is Song song)
                 PlayMedia(song);
         }
-        public void PlayPrevious()
-        {
-            if (PreviousSongs.Count == 0) return;
-            PlayMedia(PreviousSongs.Pop(), true);
-        }
 
-        public static async Task SaveSong(Song song)
-        {
-            string userRoot = Environment.GetEnvironmentVariable("USERPROFILE") ?? "C:\\";
-            string downloadFolder = Path.Combine(userRoot, "Downloads", $"{song.Title}.mp3");
-
-            //MessageBox.Show($"Downloading to:\n{downloadFolder}");
-            HttpClient client = new();
-            await using var stream = await client.GetStreamAsync(song.Url);
-            await using var fileStream = new FileStream(downloadFolder, FileMode.CreateNew);
-            await stream.CopyToAsync(fileStream);
-        }
-
+        [RelayCommand]
         public void Pause()
         {
             if (_mediaElementService.MediaElement is not MediaElement mediaElement) return;

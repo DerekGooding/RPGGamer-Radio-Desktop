@@ -23,6 +23,12 @@
 
     <StackPanel>
         <MediaElement x:Name="MyPlayer" LoadedBehavior="Manual"/>
+        <StackPanel Orientation="Horizontal">
+            <ui:TextBox Text="{Binding ViewModel.Search}" PlaceholderText="eg: 420" Width="200"/>
+            <ui:Button Content="Go" Command="{Binding ViewModel.PlayByIDCommand}"/>
+            <ui:Button Content="Pause" Command="{Binding ViewModel.PauseCommand}"/>
+            <ui:Button Content="Next" Command="{Binding ViewModel.PlayRandomSongCommand}"/>
+        </StackPanel>
         <TextBlock Text="{Binding ViewModel.Status, Mode=OneWay}" />
         <Grid>
             <ui:VirtualizingGridView
@@ -30,10 +36,20 @@
                 SelectedItem="{Binding ViewModel.SelectedSong, Mode=TwoWay}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type models:Song}">
-                        <StackPanel Width="300">
-                            <TextBlock Text="{Binding Title, Mode=OneWay}" />
-                            <TextBlock Text="{Binding Game, Mode=OneWay}" />
-                        </StackPanel>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="2*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Image Source="{Binding ImageSource}" Width="120"/>
+                            <Grid Grid.Row="1">
+                                <Rectangle Fill="LightGray" Opacity="0.2"/>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Title, Mode=OneWay}" />
+                                    <TextBlock Text="{Binding Game, Mode=OneWay}" />
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ui:VirtualizingGridView>

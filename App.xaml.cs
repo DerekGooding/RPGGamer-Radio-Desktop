@@ -45,6 +45,7 @@ namespace RPGGamer_Radio_Desktop
                 services.AddSingleton<AudioService>();
                 services.AddSingleton<WebhookService>();
                 services.AddSingleton<DatabaseService>();
+                services.AddSingleton<NotificationService>();
 
                 services.AddSingleton<MediaElementService>();
 

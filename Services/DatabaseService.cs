@@ -44,7 +44,6 @@ public class DatabaseService
             int index = list.FindIndex(s => s.Id == song.Id);
             list[index] = song;
             using StreamWriter writer = new(_database, false);
-            //writer.WriteLine($"sep={separator}");
             foreach (Song s in list)
                 writer.WriteLine(SongToLine(s));
         }));
@@ -58,7 +57,6 @@ public class DatabaseService
             Song found = list.Find(s => s.Id == song.Id);
             list.Remove(found);
             using StreamWriter writer = new(_database, false);
-            //writer.WriteLine($"sep={separator}");
             foreach (Song s in list)
                 writer.WriteLine(SongToLine(s));
         }));
@@ -69,7 +67,6 @@ public class DatabaseService
         return reader
             .ReadToEnd()
             .Split(Environment.NewLine)
-            //.Skip(1)
             .Where(line => !string.IsNullOrEmpty(line))
             .Select(LineToSong)
             .ToList();
@@ -88,10 +85,8 @@ public class DatabaseService
         return new Song(int.Parse(parts[0]), parts[1], parts[2], parts[3]);
     }
 
-    private string SongToLine(Song song)
-    {
-        return $"{song.Id}{separator}{song.Url}{separator}{song.Game}{separator}{song.Title}";
-    }
+    private string SongToLine(Song song) 
+        => $"{song.Id}{separator}{song.Url}{separator}{song.Game}{separator}{song.Title}";
 
     private async Task ProcessQueue()
     {

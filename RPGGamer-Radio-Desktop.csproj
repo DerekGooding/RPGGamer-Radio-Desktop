@@ -21,12 +21,14 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Assets\wpfui-icon-256.png" />
-    <None Remove="Assets\wpfui-icon-1024.png" />
     <None Remove="radio.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Assets\wpfui-icon-256.png" />
-    <Resource Include="Assets\wpfui-icon-1024.png" />
+    <Folder Include="Assets\Backgrounds\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Services\NotificationService.cs">
+      <Generator>MSBuild:Compile</Generator>
+    </Compile>
   </ItemGroup>
 </Project>
