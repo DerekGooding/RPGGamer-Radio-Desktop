@@ -26,6 +26,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+        <MediaElement x:Name="MyPlayer" LoadedBehavior="Manual"/>
         <ui:NavigationView
             x:Name="RootNavigation"
             Grid.Row="1"

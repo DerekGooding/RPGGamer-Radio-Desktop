@@ -1,4 +1,5 @@
-﻿using RPGGamer_Radio_Desktop.ViewModels.Windows;
+﻿using RPGGamer_Radio_Desktop.Services;
+using RPGGamer_Radio_Desktop.ViewModels.Windows;
 using Wpf.Ui;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
@@ -12,7 +13,8 @@ public partial class MainWindow : INavigationWindow
     public MainWindow(
         MainWindowViewModel viewModel,
         IPageService pageService,
-        INavigationService navigationService
+        INavigationService navigationService,
+        MediaElementService mediaElementService
     )
     {
         ViewModel = viewModel;
@@ -23,6 +25,7 @@ public partial class MainWindow : INavigationWindow
         InitializeComponent();
         SetPageService(pageService);
 
+        mediaElementService.MediaElement = MyPlayer;
         navigationService.SetNavigationControl(RootNavigation);
     }
 

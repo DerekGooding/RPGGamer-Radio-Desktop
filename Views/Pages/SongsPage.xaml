@@ -22,7 +22,6 @@
     </Page.Resources>
 
     <StackPanel>
-        <MediaElement x:Name="MyPlayer" LoadedBehavior="Manual"/>
         <StackPanel Orientation="Horizontal">
             <ui:TextBox Text="{Binding ViewModel.Search}" PlaceholderText="eg: 420" Width="200"/>
             <ui:Button Content="Go" Command="{Binding ViewModel.PlayByIDCommand}"/>
