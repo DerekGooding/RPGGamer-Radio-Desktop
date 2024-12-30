@@ -80,14 +80,6 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         private string _search = string.Empty;
 
         [ObservableProperty]
-        private Song? _selectedSong;
-        partial void OnSelectedSongChanged(Song? value)
-        {
-            if(value is Song song)
-                PlayMedia(song);
-        }
-
-        [ObservableProperty]
         private bool _isPlaying;
 
         [ObservableProperty]
@@ -158,11 +150,18 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         }
 
         [RelayCommand]
+        public void PlayByButton(Song? song)
+        {
+            if (song is not Song s) return;
+            PlayMedia(s);
+        }
+
+        [RelayCommand]
         public void PlayByID()
         {
             if (!int.TryParse(Search, out int id)) return;
             Search = string.Empty;
-            SelectedSong = AllSongs[id];
+            PlayMedia(AllSongs[id]);
         }
 
         private void Element_MediaEnded(object sender, RoutedEventArgs e) => PlayRandomSong();
@@ -170,10 +169,9 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         [RelayCommand]
         public void PlayRandomSong()
         {
-            SelectedSong = AllSongs[Random.Shared.Next(AllSongs.Count - 1)];
+            Song song = AllSongs[Random.Shared.Next(AllSongs.Count - 1)];
 
-            if (SelectedSong is Song song)
-                PlayMedia(song);
+            PlayMedia(song);
         }
 
         [RelayCommand]
@@ -187,7 +185,6 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
             }
             else
             {
-                if (SelectedSong == null) PlayRandomSong();
                 mediaElement.Play();
                 IsPlaying = true;
             }
