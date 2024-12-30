@@ -1,12 +1,9 @@
 ﻿using RPGGamer_Radio_Desktop.Helpers;
 using RPGGamer_Radio_Desktop.Models;
 using RPGGamer_Radio_Desktop.Services;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Net.Http;
 using System.Windows.Controls;
-using System.Windows.Data;
 using Wpf.Ui.Controls;
 
 namespace RPGGamer_Radio_Desktop.ViewModels.Pages
@@ -23,39 +20,16 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
             _databaseService = databaseService;
             _mediaElementService = mediaElementService;
             _notificationService = notificationService;
-            object foundLinksLock = new();
-            BindingOperations.EnableCollectionSynchronization(AllSongs, foundLinksLock);
 
-            LoadData();
-        }
+            AllSongs.AddRange(_databaseService.Read());
 
-        private bool _suppressNotifications;
-
-        protected override void OnPropertyChanged(PropertyChangedEventArgs e)
-        {
-            if (!_suppressNotifications)
-            {
-                base.OnPropertyChanged(e);
-            }
-        }
-
-        private void LoadData()
-        {
-            _suppressNotifications = true;
-            new Thread(() =>
-            {
-                foreach (Song item in _databaseService.Read().Take(20))
-                    AllSongs.Add(item);
-                _suppressNotifications = false;
-            }).Start();
+            Titles.AddRange(_databaseService.Read().Select(x=>x.Title));
         }
 
         private readonly WebhookService _webhookService;
         private readonly DatabaseService _databaseService;
         private readonly MediaElementService _mediaElementService;
         private readonly NotificationService _notificationService;
-
-        public double FillWidth { get; set; }
 
         [ObservableProperty]
         private string _status = "Ready";
@@ -85,8 +59,9 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         [ObservableProperty]
         private bool _isRequesting = true;
 
-        [ObservableProperty]
-        private ObservableCollection<Song> _allSongs = [];
+        public CustomCollection<Song> AllSongs { get; } = [];
+
+        public CustomCollection<string> Titles { get; } = [];
 
         public void OnNavigatedTo() { }
         public void OnNavigatedFrom() { }
@@ -167,12 +142,7 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         private void Element_MediaEnded(object sender, RoutedEventArgs e) => PlayRandomSong();
 
         [RelayCommand]
-        public void PlayRandomSong()
-        {
-            Song song = AllSongs[Random.Shared.Next(AllSongs.Count - 1)];
-
-            PlayMedia(song);
-        }
+        public void PlayRandomSong() => PlayMedia(AllSongs[Random.Shared.Next(AllSongs.Count - 1)]);
 
         [RelayCommand]
         public void Pause()

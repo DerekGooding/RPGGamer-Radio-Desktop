@@ -30,21 +30,31 @@
             <ui:Button Content="Next" Command="{Binding ViewModel.PlayRandomSongCommand}"/>
         </StackPanel>
         <TextBlock Text="{Binding ViewModel.Status, Mode=OneWay}" />
-        <Grid>
-            <ui:VirtualizingGridView
-                ItemsSource="{Binding ViewModel.AllSongs, Mode=OneWay}" 
-                VirtualizingPanel.CacheLengthUnit="Item">
+        <!--<Grid>
+            <ui:ListView ItemsSource="{Binding ViewModel.Titles}">
+                
+            </ui:ListView>
+        </Grid>-->
+        <!--<Grid>
+            <ItemsControl 
+                ItemsSource="{Binding ViewModel.AllSongs, Mode=OneWay}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type models:Song}">
                         <ui:Button Command="{Binding DataContext.ViewModel.PlayByButtonCommand, RelativeSource={RelativeSource AncestorType=Page}}" 
                                    CommandParameter="{Binding}"
                                    IsHitTestVisible="True"
-                                   Focusable="False">
+                                   Focusable="False"
+                                   Width="150" Height="150">
                             <ui:Button.Content>
                                 <Grid>
-                                    <Image  Width="150" Height="150"/>
-                                    <StackPanel VerticalAlignment="Bottom" >
-                                        <TextBlock Text="{Binding Title, Mode=OneWay}" />
+                                    <Image  Width="150"/>
+                                    <StackPanel VerticalAlignment="Bottom">
+                                        <TextBlock Text="{Binding Title, Mode=OneWay}" TextWrapping="WrapWithOverflow"/>
                                         <TextBlock Text="{Binding Game, Mode=OneWay}" TextWrapping="WrapWithOverflow"/>
                                     </StackPanel>
                                 </Grid>
@@ -52,8 +62,8 @@
                         </ui:Button>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
-            </ui:VirtualizingGridView>
-        </Grid>
+            </ItemsControl >
+        </Grid>-->
 
     </StackPanel>
 </Page>
