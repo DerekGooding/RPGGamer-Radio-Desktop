@@ -23,14 +23,14 @@
         <helpers:RectConverter x:Key="RectConverter" />
     </Page.Resources>
 
-    <Grid>
-        <!--<StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
                 <ui:TextBox Text="{Binding ViewModel.Search}" PlaceholderText="eg: 420" Width="200"/>
                 <ui:Button Content="Go" Command="{Binding ViewModel.PlayByIDCommand}"/>
                 <ui:Button Content="Pause" Command="{Binding ViewModel.PauseCommand}"/>
                 <ui:Button Content="Next" Command="{Binding ViewModel.PlayRandomSongCommand}"/>
             </StackPanel>
-        <TextBlock DockPanel.Dock="Top" Text="{Binding ViewModel.Status, Mode=OneWay}" />-->
+        <TextBlock DockPanel.Dock="Top" Text="{Binding ViewModel.Status, Mode=OneWay}" />
         <Grid >
             <ui:VirtualizingItemsControl 
                 Foreground="{DynamicResource TextFillColorSecondaryBrush}"
@@ -70,5 +70,5 @@
             </ui:VirtualizingItemsControl >
         </Grid>
 
-    </Grid>
+    </DockPanel>
 </Page>
