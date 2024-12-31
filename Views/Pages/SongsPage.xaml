@@ -30,39 +30,44 @@
         </StackPanel>
         <TextBlock Text="{Binding ViewModel.Status, Mode=OneWay}" />
         <!--<Grid>
-            <ui:ListView ItemsSource="{Binding ViewModel.Titles}">
+            <ui:ListView ItemsSource="{Binding ViewModel.ImageSources}">
                 
             </ui:ListView>
         </Grid>-->
         <!--<Grid>
+            <ui:ListView ItemsSource="{Binding ViewModel.Titles}">
+                
+            </ui:ListView>
+        </Grid>-->
+        <Grid>
             <ItemsControl 
-                ItemsSource="{Binding ViewModel.AllSongs, Mode=OneWay}">
+                ItemsSource="{Binding ViewModel.SongImages, Mode=OneWay}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <UniformGrid/>
+                        <UniformGrid />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="{x:Type models:Song}">
+                    <DataTemplate DataType="{x:Type models:SongImage}">
                         <ui:Button Command="{Binding DataContext.ViewModel.PlayByButtonCommand, RelativeSource={RelativeSource AncestorType=Page}}" 
-                                   CommandParameter="{Binding}"
+                                   CommandParameter="{Binding Song}"
                                    IsHitTestVisible="True"
                                    Focusable="False"
-                                   Width="150" Height="150">
+                                   Width="150" Height="250">
                             <ui:Button.Content>
-                                <Grid>
-                                    <Image  Width="150"/>
-                                    <StackPanel VerticalAlignment="Bottom">
-                                        <TextBlock Text="{Binding Title, Mode=OneWay}" TextWrapping="WrapWithOverflow"/>
-                                        <TextBlock Text="{Binding Game, Mode=OneWay}" TextWrapping="WrapWithOverflow"/>
+                                <DockPanel>
+                                    <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
+                                        <TextBlock Text="{Binding Song.Title, Mode=OneWay}" TextWrapping="WrapWithOverflow"/>
+                                        <TextBlock Text="{Binding Song.Game, Mode=OneWay}" TextWrapping="WrapWithOverflow"/>
                                     </StackPanel>
-                                </Grid>
+                                    <Image Source="{Binding Source}"/>
+                                </DockPanel>
                             </ui:Button.Content>
                         </ui:Button>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl >
-        </Grid>-->
+        </Grid>
 
     </StackPanel>
 </Page>

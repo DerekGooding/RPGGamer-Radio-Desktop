@@ -3,7 +3,10 @@ using RPGGamer_Radio_Desktop.Models;
 using RPGGamer_Radio_Desktop.Services;
 using System.IO;
 using System.Net.Http;
+using System.Reflection;
 using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Wpf.Ui.Controls;
 
 namespace RPGGamer_Radio_Desktop.ViewModels.Pages
@@ -21,15 +24,41 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
             _mediaElementService = mediaElementService;
             _notificationService = notificationService;
 
-            AllSongs.AddRange(_databaseService.Read());
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            _imageSources = assembly.GetManifestResourceNames();
+
+            AllSongs.AddRange(_databaseService.Read().Take(20));
 
             Titles.AddRange(_databaseService.Read().Select(x=>x.Title));
+
+            SongImages.AddRange(AllSongs.Select(x => new SongImage(x, GetImage(x, assembly))));
+        }
+
+        private ImageSource GetImage(Song song, Assembly assembly)
+        {
+            string? find = ImageSources.FirstOrDefault(x => x.Contains(song.Game+".jpg"));
+
+
+            using Stream? stream = assembly.GetManifestResourceStream(find ?? ImageSources[1])
+                ?? throw new FileNotFoundException($"Resource '{find}' not found in assembly.");
+
+            // Create a BitmapImage and load the stream
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.StreamSource = stream;
+            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+            bitmap.EndInit();
+
+            return bitmap;
         }
 
         private readonly WebhookService _webhookService;
         private readonly DatabaseService _databaseService;
         private readonly MediaElementService _mediaElementService;
         private readonly NotificationService _notificationService;
+
+        [ObservableProperty]
+        private string[] _imageSources = [];
 
         [ObservableProperty]
         private string _status = "Ready";
@@ -60,6 +89,8 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         private bool _isRequesting = true;
 
         public CustomCollection<Song> AllSongs { get; } = [];
+
+        public CustomCollection<SongImage> SongImages { get; } = [];
 
         public CustomCollection<string> Titles { get; } = [];
 

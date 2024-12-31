@@ -7,7 +7,7 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Windows
     public partial class MainWindowViewModel : ObservableObject
     {
         [ObservableProperty]
-        private string _applicationTitle = "WPF UI - RPGGamer_Radio_Desktop";
+        private string _applicationTitle = "RPGGamer Radio Desktop";
 
         [ObservableProperty]
         private ObservableCollection<object> _menuItems =
