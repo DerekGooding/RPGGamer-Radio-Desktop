@@ -18,7 +18,7 @@
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     ScrollViewer.CanContentScroll="False"
     mc:Ignorable="d"
-    x:Name="Parent">
+    x:Name="ParentPage">
     <Page.Resources>
         <helpers:RectConverter x:Key="RectConverter" />
     </Page.Resources>
@@ -37,17 +37,17 @@
                 ItemsSource="{Binding ViewModel.SongImages, Mode=OneWay}"
                 VirtualizingPanel.CacheLengthUnit="Item">
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="{x:Type models:Song}">
-                        <ui:Button Command="{Binding DataContext.ViewModel.PlayByButtonCommand, ElementName=Parent}" 
-                                   CommandParameter="{Binding}"
+                    <DataTemplate DataType="{x:Type models:SongImage}">
+                        <ui:Button Command="{Binding DataContext.ViewModel.PlayByButtonCommand, ElementName=ParentPage}" 
+                                   CommandParameter="{Binding Song}"
                                    IsHitTestVisible="True"
                                    Focusable="False"
                                    Width="150" Height="250">
                             <ui:Button.Content>
                                 <DockPanel>
                                     <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
-                                        <TextBlock Text="{Binding Title, Mode=OneWay}" TextWrapping="WrapWithOverflow"/>
-                                        <TextBlock Text="{Binding Game, Mode=OneWay}" TextWrapping="WrapWithOverflow"/>
+                                        <TextBlock Text="{Binding Song.Title, Mode=OneWay}" TextWrapping="WrapWithOverflow"/>
+                                        <TextBlock Text="{Binding Song.Game, Mode=OneWay}" TextWrapping="WrapWithOverflow"/>
                                     </StackPanel>
                                     <Border CornerRadius="20" Background="Transparent">
                                         <Border.Clip>
@@ -60,7 +60,7 @@
                                                 </RectangleGeometry.Rect>
                                             </RectangleGeometry>
                                         </Border.Clip>
-                                        <!--<Image Source="{Binding Source}" Stretch="UniformToFill"/>-->
+                                        <Image Source="{Binding Source}" Stretch="UniformToFill"/>
                                     </Border>
                                 </DockPanel>
                             </ui:Button.Content>

@@ -24,36 +24,45 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
 
         private bool _initialized;
 
+        private readonly Dictionary<string, BitmapImage> _imageCache = [];
+
         private void Initialize()
         {
             if (_initialized) return;
             _initialized = true;
 
-            //Assembly assembly = Assembly.GetExecutingAssembly();
-            //string[] _imageSources = assembly.GetManifestResourceNames();
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            string[] _imageSources = assembly.GetManifestResourceNames();
+            HashSet<string> imageSourceSet = new(_imageSources);
 
-            var list = _databaseService.Read();
-            //ImageSource first = GetImage(list[0], _imageSources, assembly);
+            List<SongImage> collection = _databaseService.Read()
+                    .ConvertAll(song => new SongImage(song, GetCachedImage(song, imageSourceSet, assembly, _imageSources)))
+;
 
-            //List<SongImage> collection = [.. _databaseService.Read().Select(x => new SongImage(x, GetImage(x, _imageSources, assembly)))];
-            //List<SongImage> collection = list.ConvertAll(x => new SongImage(x, first));
-            SongImages = list.ToList();
+            SongImages = collection;
         }
 
-        private ImageSource GetImage(Song song, string[] imageSources, Assembly assembly)
+        private ImageSource GetCachedImage(Song song, HashSet<string> imageSourceSet, Assembly assembly, string[] fallbackSources)
         {
-            string? find = imageSources.FirstOrDefault(x => x.Contains(song.Game+".jpg"));
+            string resourceName = imageSourceSet.FirstOrDefault(name => name.Contains($"{song.Game}.jpg"))
+                                  ?? fallbackSources[1];
 
+            // Return from cache if already loaded
+            if (_imageCache.TryGetValue(resourceName, out BitmapImage? cachedImage))
+                return cachedImage;
 
-            using Stream? stream = assembly.GetManifestResourceStream(find ?? imageSources[1])
-                ?? throw new FileNotFoundException($"Resource '{find}' not found in assembly.");
+            // Load the image if not in cache
+            using Stream stream = assembly.GetManifestResourceStream(resourceName)
+                               ?? throw new FileNotFoundException($"Resource '{resourceName}' not found in assembly.");
 
-            // Create a BitmapImage and load the stream
-            var bitmap = new BitmapImage();
+            BitmapImage bitmap = new();
             bitmap.BeginInit();
             bitmap.StreamSource = stream;
             bitmap.CacheOption = BitmapCacheOption.OnLoad;
             bitmap.EndInit();
+
+            // Cache the loaded image
+            _imageCache[resourceName] = bitmap;
 
             return bitmap;
         }
@@ -87,7 +96,7 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         private bool _isRequesting = true;
 
         [ObservableProperty]
-        private List<Song> _songImages = [];
+        private List<SongImage> _songImages = [];
 
         public void OnNavigatedTo() { Initialize(); }
         public void OnNavigatedFrom() { }
@@ -162,13 +171,13 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         {
             if (!int.TryParse(Search, out int id)) return;
             Search = string.Empty;
-            PlayMedia(SongImages[id]);
+            PlayMedia(SongImages[id].Song);
         }
 
         private void Element_MediaEnded(object sender, RoutedEventArgs e) => PlayRandomSong();
 
         [RelayCommand]
-        public void PlayRandomSong() => PlayMedia(SongImages[Random.Shared.Next(SongImages.Count - 1)]);
+        public void PlayRandomSong() => PlayMedia(SongImages[Random.Shared.Next(SongImages.Count - 1)].Song);
 
         [RelayCommand]
         public void Pause()
