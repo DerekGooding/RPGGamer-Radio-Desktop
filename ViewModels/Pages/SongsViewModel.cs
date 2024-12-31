@@ -11,35 +11,41 @@ using Wpf.Ui.Controls;
 
 namespace RPGGamer_Radio_Desktop.ViewModels.Pages
 {
-    public partial class SongsViewModel : ObservableObject, INavigationAware
+    public partial class SongsViewModel(
+        WebhookService webhookService,
+        DatabaseService databaseService,
+        MediaElementService mediaElementService,
+        NotificationService notificationService) : ObservableObject, INavigationAware
     {
-        public SongsViewModel(
-            WebhookService webhookService,
-            DatabaseService databaseService,
-            MediaElementService mediaElementService,
-            NotificationService notificationService)
+        private readonly WebhookService _webhookService = webhookService;
+        private readonly DatabaseService _databaseService = databaseService;
+        private readonly MediaElementService _mediaElementService = mediaElementService;
+        private readonly NotificationService _notificationService = notificationService;
+
+        private bool _initialized;
+
+        private void Initialize()
         {
-            _webhookService = webhookService;
-            _databaseService = databaseService;
-            _mediaElementService = mediaElementService;
-            _notificationService = notificationService;
+            if (_initialized) return;
+            _initialized = true;
 
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            _imageSources = assembly.GetManifestResourceNames();
+            //Assembly assembly = Assembly.GetExecutingAssembly();
+            //string[] _imageSources = assembly.GetManifestResourceNames();
 
-            AllSongs.AddRange(_databaseService.Read().Take(20));
+            var list = _databaseService.Read();
+            //ImageSource first = GetImage(list[0], _imageSources, assembly);
 
-            Titles.AddRange(_databaseService.Read().Select(x=>x.Title));
-
-            SongImages.AddRange(AllSongs.Select(x => new SongImage(x, GetImage(x, assembly))));
+            //List<SongImage> collection = [.. _databaseService.Read().Select(x => new SongImage(x, GetImage(x, _imageSources, assembly)))];
+            //List<SongImage> collection = list.ConvertAll(x => new SongImage(x, first));
+            SongImages = list.ToList();
         }
 
-        private ImageSource GetImage(Song song, Assembly assembly)
+        private ImageSource GetImage(Song song, string[] imageSources, Assembly assembly)
         {
-            string? find = ImageSources.FirstOrDefault(x => x.Contains(song.Game+".jpg"));
+            string? find = imageSources.FirstOrDefault(x => x.Contains(song.Game+".jpg"));
 
 
-            using Stream? stream = assembly.GetManifestResourceStream(find ?? ImageSources[1])
+            using Stream? stream = assembly.GetManifestResourceStream(find ?? imageSources[1])
                 ?? throw new FileNotFoundException($"Resource '{find}' not found in assembly.");
 
             // Create a BitmapImage and load the stream
@@ -51,14 +57,6 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
 
             return bitmap;
         }
-
-        private readonly WebhookService _webhookService;
-        private readonly DatabaseService _databaseService;
-        private readonly MediaElementService _mediaElementService;
-        private readonly NotificationService _notificationService;
-
-        [ObservableProperty]
-        private string[] _imageSources = [];
 
         [ObservableProperty]
         private string _status = "Ready";
@@ -88,13 +86,10 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         [ObservableProperty]
         private bool _isRequesting = true;
 
-        public CustomCollection<Song> AllSongs { get; } = [];
+        [ObservableProperty]
+        private List<Song> _songImages = [];
 
-        public CustomCollection<SongImage> SongImages { get; } = [];
-
-        public CustomCollection<string> Titles { get; } = [];
-
-        public void OnNavigatedTo() { }
+        public void OnNavigatedTo() { Initialize(); }
         public void OnNavigatedFrom() { }
 
         public async Task LookForLinks()
@@ -167,13 +162,13 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         {
             if (!int.TryParse(Search, out int id)) return;
             Search = string.Empty;
-            PlayMedia(AllSongs[id]);
+            PlayMedia(SongImages[id]);
         }
 
         private void Element_MediaEnded(object sender, RoutedEventArgs e) => PlayRandomSong();
 
         [RelayCommand]
-        public void PlayRandomSong() => PlayMedia(AllSongs[Random.Shared.Next(AllSongs.Count - 1)]);
+        public void PlayRandomSong() => PlayMedia(SongImages[Random.Shared.Next(SongImages.Count - 1)]);
 
         [RelayCommand]
         public void Pause()

@@ -16,58 +16,59 @@
     ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
     ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-    mc:Ignorable="d">
+    ScrollViewer.CanContentScroll="False"
+    mc:Ignorable="d"
+    x:Name="Parent">
     <Page.Resources>
-        <helpers:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+        <helpers:RectConverter x:Key="RectConverter" />
     </Page.Resources>
 
-    <StackPanel>
-        <StackPanel Orientation="Horizontal">
-            <ui:TextBox Text="{Binding ViewModel.Search}" PlaceholderText="eg: 420" Width="200"/>
-            <ui:Button Content="Go" Command="{Binding ViewModel.PlayByIDCommand}"/>
-            <ui:Button Content="Pause" Command="{Binding ViewModel.PauseCommand}"/>
-            <ui:Button Content="Next" Command="{Binding ViewModel.PlayRandomSongCommand}"/>
-        </StackPanel>
-        <TextBlock Text="{Binding ViewModel.Status, Mode=OneWay}" />
-        <!--<Grid>
-            <ui:ListView ItemsSource="{Binding ViewModel.ImageSources}">
-                
-            </ui:ListView>
-        </Grid>-->
-        <!--<Grid>
-            <ui:ListView ItemsSource="{Binding ViewModel.Titles}">
-                
-            </ui:ListView>
-        </Grid>-->
-        <Grid>
-            <ItemsControl 
-                ItemsSource="{Binding ViewModel.SongImages, Mode=OneWay}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <UniformGrid />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
+    <Grid>
+        <!--<StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                <ui:TextBox Text="{Binding ViewModel.Search}" PlaceholderText="eg: 420" Width="200"/>
+                <ui:Button Content="Go" Command="{Binding ViewModel.PlayByIDCommand}"/>
+                <ui:Button Content="Pause" Command="{Binding ViewModel.PauseCommand}"/>
+                <ui:Button Content="Next" Command="{Binding ViewModel.PlayRandomSongCommand}"/>
+            </StackPanel>
+        <TextBlock DockPanel.Dock="Top" Text="{Binding ViewModel.Status, Mode=OneWay}" />-->
+        <Grid >
+            <ui:VirtualizingItemsControl 
+                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                ItemsSource="{Binding ViewModel.SongImages, Mode=OneWay}"
+                VirtualizingPanel.CacheLengthUnit="Item">
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="{x:Type models:SongImage}">
-                        <ui:Button Command="{Binding DataContext.ViewModel.PlayByButtonCommand, RelativeSource={RelativeSource AncestorType=Page}}" 
-                                   CommandParameter="{Binding Song}"
+                    <DataTemplate DataType="{x:Type models:Song}">
+                        <ui:Button Command="{Binding DataContext.ViewModel.PlayByButtonCommand, ElementName=Parent}" 
+                                   CommandParameter="{Binding}"
                                    IsHitTestVisible="True"
                                    Focusable="False"
                                    Width="150" Height="250">
                             <ui:Button.Content>
                                 <DockPanel>
                                     <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
-                                        <TextBlock Text="{Binding Song.Title, Mode=OneWay}" TextWrapping="WrapWithOverflow"/>
-                                        <TextBlock Text="{Binding Song.Game, Mode=OneWay}" TextWrapping="WrapWithOverflow"/>
+                                        <TextBlock Text="{Binding Title, Mode=OneWay}" TextWrapping="WrapWithOverflow"/>
+                                        <TextBlock Text="{Binding Game, Mode=OneWay}" TextWrapping="WrapWithOverflow"/>
                                     </StackPanel>
-                                    <Image Source="{Binding Source}"/>
+                                    <Border CornerRadius="20" Background="Transparent">
+                                        <Border.Clip>
+                                            <RectangleGeometry RadiusX="20" RadiusY="20">
+                                                <RectangleGeometry.Rect>
+                                                    <MultiBinding Converter="{StaticResource RectConverter}">
+                                                        <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType=Border}"/>
+                                                        <Binding Path="ActualHeight" RelativeSource="{RelativeSource AncestorType=Border}"/>
+                                                    </MultiBinding>
+                                                </RectangleGeometry.Rect>
+                                            </RectangleGeometry>
+                                        </Border.Clip>
+                                        <!--<Image Source="{Binding Source}" Stretch="UniformToFill"/>-->
+                                    </Border>
                                 </DockPanel>
                             </ui:Button.Content>
                         </ui:Button>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
-            </ItemsControl >
+            </ui:VirtualizingItemsControl >
         </Grid>
 
-    </StackPanel>
+    </Grid>
 </Page>

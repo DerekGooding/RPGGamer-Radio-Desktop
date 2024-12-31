@@ -21,6 +21,7 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
   </ItemGroup>
   <ItemGroup>
+	<None Remove="Assets\Backgrounds\ComingSoon.jpg" />
     <None Remove="Assets\Backgrounds\10000000.jpg" />
     <None Remove="Assets\Backgrounds\3D Dot Game Heroes.jpg" />
     <None Remove="Assets\Backgrounds\7th Dragon.jpg" />
@@ -386,6 +387,7 @@
     <None Remove="radio.ico" />
   </ItemGroup>
   <ItemGroup>
+	<EmbeddedResource Include="Assets\Backgrounds\ComingSoon.jpg" />
     <EmbeddedResource Include="Assets\Backgrounds\10000000.jpg" />
     <EmbeddedResource Include="Assets\Backgrounds\3D Dot Game Heroes.jpg" />
     <EmbeddedResource Include="Assets\Backgrounds\7th Dragon.jpg" />

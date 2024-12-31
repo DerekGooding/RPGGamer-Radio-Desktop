@@ -11,6 +11,7 @@ public partial class SongsPage : INavigableView<SongsViewModel>
     {
         ViewModel = viewModel;
         DataContext = this;
+
         InitializeComponent();
     }
 }
