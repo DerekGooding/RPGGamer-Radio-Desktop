@@ -18,6 +18,7 @@
     mc:Ignorable="d">
     <Page.Resources>
         <helpers:RectConverter x:Key="RectConverter" />
+        <helpers:PausePlayConverter x:Key="PausePlayConverter" />
     </Page.Resources>
 
     <Grid>
@@ -61,12 +62,13 @@
                     </DockPanel>
                 </DockPanel>
             </Grid>
-            
-            <!-- Playback Controls -->
+
+            <!-- Playback Controls --> 
             <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center" Margin="10">
-                <Button Content="Play" Command="{Binding ViewModel.PlayCommand}"  Width="100" Margin="5" />
-                <Button Content="Pause" Command="{Binding ViewModel.PauseCommand}"  Width="100" Margin="5" />
-                <Button Content="Stop" Command="{Binding ViewModel.StopCommand}"  Width="100" Margin="5" />
+                <ui:Button Content="|◀" Command="{Binding ViewModel.PreviousCommand}" Margin="5"/>
+                <ui:Button Content="{Binding ViewModel.IsPlaying, Converter={StaticResource PausePlayConverter}}"
+                           Command="{Binding ViewModel.PauseCommand}"  Margin="5" />
+                <ui:Button Content="▶|" Command="{Binding ViewModel.PlayRandomSongCommand}" Margin="5"/>
             </StackPanel>
         </Grid>
 

@@ -9,6 +9,9 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
 
 
         [ObservableProperty]
+        private bool _isPlaying;
+
+        [ObservableProperty]
         private string _duration = "00:00";
 
         [ObservableProperty]
@@ -21,6 +24,7 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         {
             MediaElementService = mediaElementService;
             MediaElementService.SongChange += HandleSongChange;
+            MediaElementService.PlayStatusChange += HandlePlayStatusChange;
         }
 
         private void HandleSongChange(object? sender, EventArgs e)
@@ -30,21 +34,24 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
                 CurrentlyPlaying = song;
             }
         }
+        private void HandlePlayStatusChange(object? sender, EventArgs e)
+        {
+            if (sender is bool isPlaying)
+            {
+                IsPlaying = isPlaying;
+            }
+        }
+
+
 
         [RelayCommand]
-        public void Play()
-        {
-            MediaElementService.MediaElement?.Play();
-        }
+        public void Pause() => MediaElementService.Pause();
         [RelayCommand]
-        public void Pause()
-        {
-            MediaElementService.MediaElement?.Pause();
-        }
+        public void PlayRandomSong() => MediaElementService.PlayRandomSong();
         [RelayCommand]
-        public void Stop()
+        public void Previous()
         {
-            MediaElementService.MediaElement?.Stop();
+
         }
     }
 }

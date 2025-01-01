@@ -25,11 +25,9 @@
 
     <DockPanel>
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-                <ui:TextBox Text="{Binding ViewModel.Search}" PlaceholderText="eg: 420" Width="200"/>
-                <ui:Button Content="Go" Command="{Binding ViewModel.PlayByIDCommand}"/>
-                <ui:Button Content="Pause" Command="{Binding ViewModel.PauseCommand}"/>
-                <ui:Button Content="Next" Command="{Binding ViewModel.PlayRandomSongCommand}"/>
-            </StackPanel>
+            <ui:TextBlock Text="Search" FontSize="20" VerticalAlignment="Center" Margin="0 0 15 0"/>
+            <ui:TextBox Text="{Binding ViewModel.Search}" PlaceholderText="eg: Final Fantasy" Width="500"/>
+        </StackPanel>
         <TextBlock DockPanel.Dock="Top" Text="{Binding ViewModel.Status, Mode=OneWay}" />
         <Grid >
             <ui:VirtualizingItemsControl 

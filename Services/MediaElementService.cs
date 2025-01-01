@@ -10,11 +10,15 @@ namespace RPGGamer_Radio_Desktop.Services;
 public class MediaElementService
 {
     private readonly DatabaseService _databaseService;
+    private readonly NotificationService _notificationService;
     private readonly Dictionary<string, BitmapImage> _imageCache = [];
 
-    public MediaElementService(DatabaseService databaseService)
+
+
+    public MediaElementService(DatabaseService databaseService, NotificationService notificationService)
     {
         _databaseService = databaseService;
+        _notificationService = notificationService;
 
         Assembly assembly = Assembly.GetExecutingAssembly();
         string[] _imageSources = assembly.GetManifestResourceNames();
@@ -28,6 +32,15 @@ public class MediaElementService
 
     public List<SongImage> SongImages { get; } = [];
 
+    private bool isPlaying;
+    public bool IsPlaying
+    {
+        get => isPlaying; set
+        {
+            isPlaying = value;
+            PlayStatusChange?.Invoke(value, EventArgs.Empty);
+        }
+    }
     public SongImage CurrentlyPlaying
     {
         get { return currentlyPlaying; }
@@ -38,8 +51,55 @@ public class MediaElementService
         }
     }
 
-    public EventHandler? SongChange;
     private SongImage currentlyPlaying = new() { Song = new() { Game = "None", Title = "None" } };
+
+    public EventHandler? SongChange;
+
+    public EventHandler? PlayStatusChange;
+
+    private bool _subscribed;
+
+
+    public void PlayMedia(SongImage songImage)
+    {
+        if (MediaElement is not MediaElement mediaElement) return;
+        if (!_subscribed)
+        {
+            mediaElement.MediaEnded += Element_MediaEnded;
+            _subscribed = true;
+        }
+
+        Song song = songImage.Song;
+
+        new Thread(async () => await _notificationService.ShowNotificationAsync(song.Game, song.Title)).Start();
+
+        mediaElement.Source = new(song.Url);
+        mediaElement.Play();
+
+        CurrentlyPlaying = songImage;
+
+        IsPlaying = true;
+    }
+
+    private void Element_MediaEnded(object sender, RoutedEventArgs e) => PlayRandomSong();
+
+    public void PlayRandomSong() => PlayMedia(SongImages[Random.Shared.Next(SongImages.Count - 1)]);
+
+    public void Pause()
+    {
+        if (MediaElement is not MediaElement mediaElement) return;
+        if (IsPlaying)
+        {
+            mediaElement.Pause();
+            IsPlaying = false;
+        }
+        else
+        {
+            mediaElement.Play();
+            IsPlaying = true;
+        }
+    }
+
 
     private ImageSource GetCachedImage(Song song, HashSet<string> imageSourceSet, Assembly assembly, string[] fallbackSources)
     {
