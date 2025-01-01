@@ -13,7 +13,6 @@ public class DatabaseService
     private readonly string _localAppData;
     private readonly string _userFilePath;
     private readonly string _database;
-    private readonly string _imageCache;
 
     private readonly ConcurrentQueue<Action> _writeQueue = new();
     private readonly SemaphoreSlim _writeSemaphore = new(1, 1);
@@ -23,70 +22,12 @@ public class DatabaseService
         _localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         _userFilePath = Path.Combine(_localAppData, "RadioDesktop");
         _database = Path.Combine(_userFilePath, "database.csv");
-        _imageCache = Path.Combine(_userFilePath, "ImageCache");
 
         if (!Directory.Exists(_userFilePath))
             Directory.CreateDirectory(_userFilePath);
 
-        if (!Directory.Exists(_imageCache))
-            Directory.CreateDirectory(_imageCache);
-
         InitializeCSV(_database);
         Task.Run(ProcessQueue);
-    }
-
-    /// <summary>
-    /// Saves a BitmapImage to the cache folder with the specified key.
-    /// </summary>
-    /// <param name="key">Unique key for the image (e.g., resource name).</param>
-    /// <param name="image">BitmapImage to save.</param>
-    public void SaveImageToCache(string key, BitmapImage image)
-    {
-        string cacheFile = GetCacheFilePath(key);
-
-        // Save image to disk if not already cached
-        if (!File.Exists(cacheFile))
-        {
-            BitmapEncoder encoder = new PngBitmapEncoder();
-            encoder.Frames.Add(BitmapFrame.Create(image));
-            using FileStream fileStream = new(cacheFile, FileMode.Create, FileAccess.Write);
-            encoder.Save(fileStream);
-        }
-    }
-
-    /// <summary>
-    /// Loads a BitmapImage from the cache folder using the specified key.
-    /// </summary>
-    /// <param name="key">Unique key for the image (e.g., resource name).</param>
-    /// <returns>The loaded BitmapImage, or null if the image is not found in the cache.</returns>
-    public BitmapImage? LoadImageFromCache(string key)
-    {
-        string cacheFile = GetCacheFilePath(key);
-
-        if (File.Exists(cacheFile))
-        {
-            BitmapImage bitmap = new();
-            bitmap.BeginInit();
-            bitmap.UriSource = new Uri(cacheFile);
-            bitmap.CacheOption = BitmapCacheOption.OnLoad;
-            bitmap.EndInit();
-            return bitmap;
-        }
-
-        return null;
-    }
-
-    /// <summary>
-    /// Gets the file path for the cached image associated with the specified key.
-    /// </summary>
-    /// <param name="key">Unique key for the image.</param>
-    /// <returns>Path to the cached image file.</returns>
-    private string GetCacheFilePath(string key)
-    {
-        // Sanitize the key to create a valid filename
-        string name = Path.GetFileNameWithoutExtension(key).Split('.').Last();
-        string sanitizedKey = string.Join("_", name.Split(Path.GetInvalidFileNameChars()));
-        return Path.Combine(_imageCache, sanitizedKey + ".png");
     }
 
     public void Insert(Song song)
@@ -137,7 +78,6 @@ public class DatabaseService
     {
         if (File.Exists(filePath)) return;
         using StreamWriter writer = new(filePath);
-        writer.WriteLine($"sep={separator}");
     }
 
     private Song LineToSong(string line)

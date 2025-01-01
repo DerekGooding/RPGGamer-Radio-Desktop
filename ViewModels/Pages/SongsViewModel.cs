@@ -48,14 +48,6 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
             if (_imageCache.TryGetValue(resourceName, out BitmapImage? cachedImage))
                 return cachedImage;
 
-            // Try loading the image from persistent cache
-            BitmapImage? diskCachedImage = _databaseService.LoadImageFromCache(resourceName);
-            if (diskCachedImage != null)
-            {
-                _imageCache[resourceName] = diskCachedImage;
-                return diskCachedImage;
-            }
-
             // Load the image if not in cache
             using Stream stream = assembly.GetManifestResourceStream(resourceName)
                                ?? throw new FileNotFoundException($"Resource '{resourceName}' not found in assembly.");
@@ -67,7 +59,6 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
             bitmap.EndInit();
 
             // Cache the loaded image
-            _databaseService.SaveImageToCache(resourceName, bitmap);
             _imageCache[resourceName] = bitmap;
 
             return bitmap;
