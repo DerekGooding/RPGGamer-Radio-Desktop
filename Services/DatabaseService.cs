@@ -1,8 +1,6 @@
 ﻿using RPGGamer_Radio_Desktop.Models;
 using System.Collections.Concurrent;
-using System.Drawing;
 using System.IO;
-using System.Windows.Media.Imaging;
 
 namespace RPGGamer_Radio_Desktop.Services;
 
