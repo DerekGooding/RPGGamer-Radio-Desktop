@@ -39,7 +39,7 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type models:SongImage}">
                         <ui:Button Command="{Binding DataContext.ViewModel.PlayByButtonCommand, ElementName=ParentPage}" 
-                                   CommandParameter="{Binding Song}"
+                                   CommandParameter="{Binding}"
                                    IsHitTestVisible="True"
                                    Focusable="False"
                                    Width="150" Height="250">
@@ -49,7 +49,7 @@
                                         <TextBlock Text="{Binding Song.Title, Mode=OneWay}" TextWrapping="WrapWithOverflow"/>
                                         <TextBlock Text="{Binding Song.Game, Mode=OneWay}" TextWrapping="WrapWithOverflow"/>
                                     </StackPanel>
-                                    <Border CornerRadius="20" Background="Transparent">
+                                    <Border CornerRadius="20" Background="Transparent" >
                                         <Border.Clip>
                                             <RectangleGeometry RadiusX="20" RadiusY="20">
                                                 <RectangleGeometry.Rect>

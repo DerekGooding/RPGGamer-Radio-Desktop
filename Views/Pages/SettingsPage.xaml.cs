@@ -14,4 +14,14 @@ public partial class SettingsPage : INavigableView<SettingsViewModel>
 
         InitializeComponent();
     }
+
+    private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+    {
+        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+        {
+            FileName = e.Uri.AbsoluteUri,
+            UseShellExecute = true // Ensures compatibility with modern OSes
+        });
+        e.Handled = true;
+    }
 }

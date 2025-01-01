@@ -14,7 +14,7 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Windows
         [
             new NavigationViewItem()
             {
-                Content = "Home",
+                Content = "Media Player",
                 Icon = new SymbolIcon { Symbol = SymbolRegular.Home24 },
                 TargetPageType = typeof(DashboardPage)
             },

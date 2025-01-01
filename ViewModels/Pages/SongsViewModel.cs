@@ -35,11 +35,8 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
             string[] _imageSources = assembly.GetManifestResourceNames();
             HashSet<string> imageSourceSet = new(_imageSources);
 
-            List<SongImage> collection = _databaseService.Read()
-                    .ConvertAll(song => new SongImage(song, GetCachedImage(song, imageSourceSet, assembly, _imageSources)))
-;
-
-            SongImages = collection;
+            SongImages = _databaseService.Read()
+                    .ConvertAll(song => new SongImage(song, GetCachedImage(song, imageSourceSet, assembly, _imageSources)));
         }
 
         private ImageSource GetCachedImage(Song song, HashSet<string> imageSourceSet, Assembly assembly, string[] fallbackSources)
@@ -50,6 +47,14 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
             // Return from cache if already loaded
             if (_imageCache.TryGetValue(resourceName, out BitmapImage? cachedImage))
                 return cachedImage;
+
+            // Try loading the image from persistent cache
+            BitmapImage? diskCachedImage = _databaseService.LoadImageFromCache(resourceName);
+            if (diskCachedImage != null)
+            {
+                _imageCache[resourceName] = diskCachedImage;
+                return diskCachedImage;
+            }
 
             // Load the image if not in cache
             using Stream stream = assembly.GetManifestResourceStream(resourceName)
@@ -62,6 +67,7 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
             bitmap.EndInit();
 
             // Cache the loaded image
+            _databaseService.SaveImageToCache(resourceName, bitmap);
             _imageCache[resourceName] = bitmap;
 
             return bitmap;
@@ -140,7 +146,7 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
 
         private bool _subscribed;
 
-        private void PlayMedia(Song song)
+        private void PlayMedia(SongImage songImage)
         {
             if (_mediaElementService.MediaElement is not MediaElement mediaElement) return;
             if(!_subscribed)
@@ -149,20 +155,23 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
                 _subscribed = true;
             }
 
+            Song song = songImage.Song;
+
             new Thread(async()=> await _notificationService.ShowNotificationAsync(song.Game, song.Title)).Start();
 
             mediaElement.Source = new(song.Url);
             mediaElement.Play();
 
             Status = $"{song.Game} | {song.Title}";
+            _mediaElementService.CurrentlyPlaying = songImage;
 
             IsPlaying = true;
         }
 
         [RelayCommand]
-        public void PlayByButton(Song? song)
+        public void PlayByButton(SongImage? songImage)
         {
-            if (song is not Song s) return;
+            if (songImage is not SongImage s) return;
             PlayMedia(s);
         }
 
@@ -171,13 +180,13 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         {
             if (!int.TryParse(Search, out int id)) return;
             Search = string.Empty;
-            PlayMedia(SongImages[id].Song);
+            PlayMedia(SongImages[id]);
         }
 
         private void Element_MediaEnded(object sender, RoutedEventArgs e) => PlayRandomSong();
 
         [RelayCommand]
-        public void PlayRandomSong() => PlayMedia(SongImages[Random.Shared.Next(SongImages.Count - 1)].Song);
+        public void PlayRandomSong() => PlayMedia(SongImages[Random.Shared.Next(SongImages.Count - 1)]);
 
         [RelayCommand]
         public void Pause()

@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="clr-namespace:RPGGamer_Radio_Desktop.Helpers"
     xmlns:local="clr-namespace:RPGGamer_Radio_Desktop.Views.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
@@ -15,22 +16,67 @@
     ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     mc:Ignorable="d">
+    <Page.Resources>
+        <helpers:RectConverter x:Key="RectConverter" />
+    </Page.Resources>
 
-    <Grid VerticalAlignment="Top">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-        <ui:Button
-            Grid.Column="0"
-            Command="{Binding ViewModel.CounterIncrementCommand, Mode=OneWay}"
-            Content="Click me!"
-            Icon="Fluent24" />
-        <TextBlock
-            Grid.Column="1"
-            Margin="12,0,0,0"
-            VerticalAlignment="Center"
-            Text="{Binding ViewModel.Counter, Mode=OneWay}" />
+        <Grid Grid.Row="1" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Progress Bar -->
+            <ProgressBar Grid.Row="0" Name="ProgressBar" Height="10" VerticalAlignment="Top" />
+
+            <Grid Grid.Row="1">
+                <DockPanel>
+                    <Border DockPanel.Dock="left" CornerRadius="20" Background="Transparent" HorizontalAlignment="Left" Width="264" Height="352">
+                        <Border.Clip>
+                            <RectangleGeometry RadiusX="20" RadiusY="20">
+                                <RectangleGeometry.Rect>
+                                    <MultiBinding Converter="{StaticResource RectConverter}">
+                                        <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType=Border}"/>
+                                        <Binding Path="ActualHeight" RelativeSource="{RelativeSource AncestorType=Border}"/>
+                                    </MultiBinding>
+                                </RectangleGeometry.Rect>
+                            </RectangleGeometry>
+                        </Border.Clip>
+                        <Image Source="{Binding ViewModel.CurrentlyPlaying.Source}" Stretch="UniformToFill"/>
+                    </Border>
+                    <DockPanel VerticalAlignment="Center" Margin="30 0 0 0">
+                        <TextBlock DockPanel.Dock="Top" Text="{Binding ViewModel.CurrentlyPlaying.Song.Title}" 
+                                   FontSize="48" FontWeight="Bold"
+                                   TextWrapping="WrapWithOverflow"/>
+                        <TextBlock Text="{Binding ViewModel.CurrentlyPlaying.Song.Game}" 
+                                   FontSize="36" TextWrapping="WrapWithOverflow"/>
+                    </DockPanel>
+                </DockPanel>
+            </Grid>
+            
+            <!-- Playback Controls -->
+            <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center" Margin="10">
+                <Button Content="Play" Command="{Binding ViewModel.PlayCommand}"  Width="100" Margin="5" />
+                <Button Content="Pause" Command="{Binding ViewModel.PauseCommand}"  Width="100" Margin="5" />
+                <Button Content="Stop" Command="{Binding ViewModel.StopCommand}"  Width="100" Margin="5" />
+            </StackPanel>
+        </Grid>
+
+        <!-- Footer Section with Time Labels -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+            <Label Content="Current Time:" FontWeight="Bold" />
+            <Label Name="CurrentTimeLabel" Content="{Binding ViewModel.CurrentPoint}" Width="50" HorizontalContentAlignment="Right" />
+            <Label Content=" / " />
+            <Label Content="Total Time:" FontWeight="Bold" />
+            <Label Name="TotalTimeLabel" Content="{Binding ViewModel.Duration}" Width="50" HorizontalContentAlignment="Right" />
+        </StackPanel>
     </Grid>
 </Page>
