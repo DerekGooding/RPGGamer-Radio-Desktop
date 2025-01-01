@@ -57,8 +57,7 @@
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <NoWarn>$(NoWarn);NU1702</NoWarn>
     <EntryPointProjectUniqueName>..\RPGGamer-Radio-Desktop.csproj</EntryPointProjectUniqueName>
-    <PackageCertificateThumbprint>CFD46020B9EA1D99D940B6DADDDF56CF3D7C80D4</PackageCertificateThumbprint>
-    <PackageCertificateKeyFile>RPGGamer-Radio-Desktop.Publish_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateThumbprint>D65B6CC8414F706050680DB1A135531B119F0D91</PackageCertificateThumbprint>
   </PropertyGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
