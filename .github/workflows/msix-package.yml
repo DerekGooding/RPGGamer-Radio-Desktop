@@ -25,9 +25,15 @@ jobs:
     - name: Restore NuGet packages
       run: dotnet restore D:\a\RPGGamer-Radio-Desktop\RPGGamer-Radio-Desktop\RPGGamer-Radio-Desktop.csproj
 
+    - name: Import certificate
+      run: |
+        $certPassword = ConvertTo-SecureString -String "${{ secrets.CERT_PASS }}" -Force -AsPlainText
+        $certBytes = [System.Convert]::FromBase64String("${{ secrets.CERTIFICATE_PFX }}")
+        $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certBytes, $certPassword)
+
     - name: Build and Package MSIX
-      run: msbuild D:\a\RPGGamer-Radio-Desktop\RPGGamer-Radio-Desktop\RPGGamer_Radio_Desktop.Publish\RPGGamer-Radio-Desktop.Publish.wapproj /p:Configuration=Release /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload
-      working-directory: D:\a\RPGGamer-Radio-Desktop\RPGGamer-Radio-Desktop\RPGGamer_Radio_Desktop.Publish
+      run: |
+        msbuild D:\a\RPGGamer-Radio-Desktop\RPGGamer-Radio-Desktop\RPGGamer_Radio_Desktop.Publish\RPGGamer-Radio-Desktop.Publish.wapproj /p:Configuration=Release /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload /p:CertificateThumbprint="${{ secrets.CERTIFICATE_THUMBPRINT }}" /p:CertificatePassword="${{ secrets.Cert_Pass }}"
 
     - name: Create Release
       id: create_release
