@@ -49,9 +49,6 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         [RelayCommand]
         public void PlayRandomSong() => MediaElementService.PlayRandomSong();
         [RelayCommand]
-        public void Previous()
-        {
-
-        }
+        public void Previous() => MediaElementService.Previous();
     }
 }

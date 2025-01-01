@@ -13,8 +13,6 @@ public class MediaElementService
     private readonly NotificationService _notificationService;
     private readonly Dictionary<string, BitmapImage> _imageCache = [];
 
-
-
     public MediaElementService(DatabaseService databaseService, NotificationService notificationService)
     {
         _databaseService = databaseService;
@@ -31,6 +29,9 @@ public class MediaElementService
     public MediaElement? MediaElement { get; set; }
 
     public List<SongImage> SongImages { get; } = [];
+
+    private const int SongHistoryMax = 50;
+    private Stack<SongImage> _songHistory = [];
 
     private bool isPlaying;
     public bool IsPlaying
@@ -60,7 +61,7 @@ public class MediaElementService
     private bool _subscribed;
 
 
-    public void PlayMedia(SongImage songImage)
+    public void PlayMedia(SongImage songImage, bool isPrevious = false)
     {
         if (MediaElement is not MediaElement mediaElement) return;
         if (!_subscribed)
@@ -69,11 +70,16 @@ public class MediaElementService
             _subscribed = true;
         }
 
-        Song song = songImage.Song;
+        if (!isPrevious && (_songHistory.Count == 0 || _songHistory.Peek() != CurrentlyPlaying) && CurrentlyPlaying.Song.Game != "None")
+        {
+            _songHistory.Push(CurrentlyPlaying);
+            if (_songHistory.Count > SongHistoryMax)
+                _songHistory = new Stack<SongImage>(_songHistory.Take(SongHistoryMax));
+        }
 
-        new Thread(async () => await _notificationService.ShowNotificationAsync(song.Game, song.Title)).Start();
+        new Thread(async () => await _notificationService.ShowNotificationAsync(songImage.Song.Game, songImage.Song.Title)).Start();
 
-        mediaElement.Source = new(song.Url);
+        mediaElement.Source = new(songImage.Song.Url);
         mediaElement.Play();
 
         CurrentlyPlaying = songImage;
@@ -95,11 +101,23 @@ public class MediaElementService
         }
         else
         {
-            mediaElement.Play();
-            IsPlaying = true;
+            if (CurrentlyPlaying.Song.Game == "None")
+            {
+                PlayRandomSong();
+            }
+            else
+            {
+                mediaElement.Play();
+                IsPlaying = true;
+            }
         }
     }
 
+    public void Previous()
+    {
+        if(_songHistory.Count == 0) return;
+        PlayMedia(_songHistory.Pop(), true);
+    }
 
     private ImageSource GetCachedImage(Song song, HashSet<string> imageSourceSet, Assembly assembly, string[] fallbackSources)
     {

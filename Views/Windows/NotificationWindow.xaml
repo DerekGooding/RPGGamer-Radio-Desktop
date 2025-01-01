@@ -24,7 +24,8 @@
     <Border CornerRadius="10" Background="{DynamicResource ApplicationBackgroundBrush}" Padding="10">
 
         <StackPanel>
-            <TextBlock x:Name="TitleTextBlock" FontWeight="Bold" FontSize="18" Margin="0,0,0,5" 
+            <TextBlock x:Name="TitleTextBlock" FontWeight="Bold" 
+                       FontSize="18" Margin="0,0,0,5" TextWrapping="Wrap" 
                        Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
             <TextBlock x:Name="MessageTextBlock" TextWrapping="Wrap" 
                        Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>

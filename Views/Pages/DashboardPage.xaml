@@ -54,10 +54,10 @@
                         <Image Source="{Binding ViewModel.CurrentlyPlaying.Source}" Stretch="UniformToFill"/>
                     </Border>
                     <DockPanel VerticalAlignment="Center" Margin="30 0 0 0">
-                        <TextBlock DockPanel.Dock="Top" Text="{Binding ViewModel.CurrentlyPlaying.Song.Title}" 
+                        <TextBlock DockPanel.Dock="Top" Text="{Binding ViewModel.CurrentlyPlaying.Song.Game}" 
                                    FontSize="48" FontWeight="Bold"
                                    TextWrapping="WrapWithOverflow"/>
-                        <TextBlock Text="{Binding ViewModel.CurrentlyPlaying.Song.Game}" 
+                        <TextBlock Text="{Binding ViewModel.CurrentlyPlaying.Song.Title}" 
                                    FontSize="36" TextWrapping="WrapWithOverflow"/>
                     </DockPanel>
                 </DockPanel>
