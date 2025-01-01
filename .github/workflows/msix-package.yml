@@ -24,7 +24,7 @@ jobs:
 
     - name: Build MSIX package
       run: |
-        msbuild RPGGamer_Radio_Desktop.Publish/RPGGamer_Radio_Desktop.Publish.wapproj /p:Configuration=Release /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload
+        msbuild RPGGamer-Radio-Desktop\RPGGamer_Radio_Desktop.Publish\RPGGamer_Radio_Desktop.Publish.wapproj /p:Configuration=Release /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload
 
     - name: Create Release
       id: create_release
