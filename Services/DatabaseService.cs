@@ -17,14 +17,14 @@ public class DatabaseService
 
     public DatabaseService()
     {
-        _localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        _userFilePath = Path.Combine(_localAppData, "RadioDesktop");
-        _database = Path.Combine(_userFilePath, "database.csv");
+        //_localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        //_userFilePath = Path.Combine(_localAppData, "RadioDesktop");
+        //_database = Path.Combine(_userFilePath, "database.csv");
 
-        if (!Directory.Exists(_userFilePath))
-            Directory.CreateDirectory(_userFilePath);
+        //if (!Directory.Exists(_userFilePath))
+        //    Directory.CreateDirectory(_userFilePath);
 
-        InitializeCSV(_database);
+        //InitializeCSV("Assets\\Links\\database.csv");
         Task.Run(ProcessQueue);
     }
 
@@ -63,7 +63,9 @@ public class DatabaseService
     }
     public List<Song> Read()
     {
-        using StreamReader reader = new(_database);
+        var uri = new Uri("Assets\\Links\\database.csv", UriKind.Relative);
+        using Stream stream = Application.GetContentStream(uri).Stream;
+        using StreamReader reader = new(stream);
         return reader
             .ReadToEnd()
             .Split(Environment.NewLine)

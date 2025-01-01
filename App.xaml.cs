@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using RPGGamer_Radio_Desktop.Helpers;
 using RPGGamer_Radio_Desktop.Services;
 using RPGGamer_Radio_Desktop.ViewModels.Pages;
 using RPGGamer_Radio_Desktop.ViewModels.Windows;
@@ -73,7 +74,12 @@ namespace RPGGamer_Radio_Desktop
         /// <summary>
         /// Occurs when the application is loading.
         /// </summary>
-        private void OnStartup(object sender, StartupEventArgs e) => _host.Start();
+        private async void OnStartup(object sender, StartupEventArgs e)
+        {
+            //await Updater.CheckForUpdatesAsync();
+
+            _host.Start();
+        }
 
         /// <summary>
         /// Occurs when the application is closing.

@@ -385,6 +385,7 @@
     <None Remove="Assets\Backgrounds\Xenosaga Episode III.jpg" />
     <None Remove="Assets\Backgrounds\Ys Seven.jpg" />
     <None Remove="Assets\Backgrounds\Zwei!!.jpg" />
+    <None Remove="Assets\Links\database.csv" />
     <None Remove="radio.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -751,6 +752,9 @@
     <EmbeddedResource Include="Assets\Backgrounds\Xenosaga Episode III.jpg" />
     <EmbeddedResource Include="Assets\Backgrounds\Ys Seven.jpg" />
     <EmbeddedResource Include="Assets\Backgrounds\Zwei!!.jpg" />
+    <Content Include="Assets\Links\database.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Services\NotificationService.cs">
