@@ -2,6 +2,8 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0-windows</TargetFramework>
+	<RuntimeIdentifiers>win-x86</RuntimeIdentifiers>
+	  
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>radio.ico</ApplicationIcon>
     <UseWPF>true</UseWPF>
