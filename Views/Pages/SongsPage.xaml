@@ -26,9 +26,8 @@
     <DockPanel>
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
             <ui:TextBlock Text="Search" FontSize="20" VerticalAlignment="Center" Margin="0 0 15 0"/>
-            <ui:TextBox Text="{Binding ViewModel.Search}" PlaceholderText="eg: Final Fantasy" Width="500"/>
+            <ui:TextBox Text="{Binding ViewModel.Search, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="eg: Final Fantasy" Width="500" />
         </StackPanel>
-        <TextBlock DockPanel.Dock="Top" Text="{Binding ViewModel.Status, Mode=OneWay}" />
         <Grid >
             <ui:VirtualizingItemsControl 
                 Foreground="{DynamicResource TextFillColorSecondaryBrush}"
