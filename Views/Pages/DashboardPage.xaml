@@ -23,64 +23,58 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="1" Margin="20">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="30" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-
-            <!-- Progress Bar -->
-            <ProgressBar Grid.Row="0" Name="ProgressBar" Height="10" VerticalAlignment="Top" />
-
-            <Grid Grid.Row="1">
-                <DockPanel>
-                    <Border DockPanel.Dock="left" CornerRadius="20" Background="Transparent" HorizontalAlignment="Left" Width="264" Height="352">
-                        <Border.Clip>
-                            <RectangleGeometry RadiusX="20" RadiusY="20">
-                                <RectangleGeometry.Rect>
-                                    <MultiBinding Converter="{StaticResource RectConverter}">
-                                        <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType=Border}"/>
-                                        <Binding Path="ActualHeight" RelativeSource="{RelativeSource AncestorType=Border}"/>
-                                    </MultiBinding>
-                                </RectangleGeometry.Rect>
-                            </RectangleGeometry>
-                        </Border.Clip>
-                        <Image Source="{Binding ViewModel.CurrentlyPlaying.Source}" Stretch="UniformToFill"/>
-                    </Border>
-                    <DockPanel VerticalAlignment="Center" Margin="30 0 0 0">
-                        <TextBlock DockPanel.Dock="Top" Text="{Binding ViewModel.CurrentlyPlaying.Song.Game}" 
-                                   FontSize="48" FontWeight="Bold"
-                                   TextWrapping="WrapWithOverflow"/>
-                        <TextBlock Text="{Binding ViewModel.CurrentlyPlaying.Song.Title}" 
-                                   FontSize="36" TextWrapping="WrapWithOverflow"/>
-                    </DockPanel>
+        <Grid Grid.Row="0">
+            <DockPanel>
+                <Border DockPanel.Dock="left" CornerRadius="20" Background="Transparent" HorizontalAlignment="Left" Width="264" Height="352">
+                    <Border.Clip>
+                        <RectangleGeometry RadiusX="20" RadiusY="20">
+                            <RectangleGeometry.Rect>
+                                <MultiBinding Converter="{StaticResource RectConverter}">
+                                    <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType=Border}"/>
+                                    <Binding Path="ActualHeight" RelativeSource="{RelativeSource AncestorType=Border}"/>
+                                </MultiBinding>
+                            </RectangleGeometry.Rect>
+                        </RectangleGeometry>
+                    </Border.Clip>
+                    <Image Source="{Binding ViewModel.CurrentlyPlaying.Source}" Stretch="UniformToFill"/>
+                </Border>
+                <DockPanel VerticalAlignment="Center" Margin="30 0 0 0">
+                    <TextBlock DockPanel.Dock="Top" Text="{Binding ViewModel.CurrentlyPlaying.Song.Game}" 
+                                FontSize="48" FontWeight="Bold"
+                                TextWrapping="WrapWithOverflow"/>
+                    <TextBlock Text="{Binding ViewModel.CurrentlyPlaying.Song.Title}" 
+                                FontSize="36" TextWrapping="WrapWithOverflow"/>
                 </DockPanel>
-            </Grid>
-
-            <!-- Playback Controls --> 
-            <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center" Margin="10">
-                <ui:Button Content="|◀" Command="{Binding ViewModel.PreviousCommand}" Margin="5"/>
-                <ui:Button Content="{Binding ViewModel.IsPlaying, Converter={StaticResource PausePlayConverter}}"
-                           Command="{Binding ViewModel.PauseCommand}"  Margin="5" />
-                <ui:Button Content="▶|" Command="{Binding ViewModel.PlayRandomSongCommand}" Margin="5"/>
-                <Slider Minimum="0" Maximum="1.0" Width="100" Value="{Binding ViewModel.Volume}" VerticalAlignment="Center" 
-                    IsSnapToTickEnabled="True" TickFrequency="0.005" Loaded="Slider_Loaded"  />
-            </StackPanel>
+            </DockPanel>
         </Grid>
 
-        <!-- Footer Section with Time Labels -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
-            <Label Content="Current Time:" FontWeight="Bold" />
-            <Label Name="CurrentTimeLabel" Content="{Binding ViewModel.CurrentPoint}" Width="50" HorizontalContentAlignment="Right" />
-            <Label Content=" / " />
-            <Label Content="Total Time:" FontWeight="Bold" />
-            <Label Name="TotalTimeLabel" Content="{Binding ViewModel.Duration}" Width="50" HorizontalContentAlignment="Right" />
+        <!-- Playback Controls -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal"  HorizontalAlignment="Center" Margin="10">
+            <ui:Button Content="|◀" Command="{Binding ViewModel.PreviousCommand}" Margin="5"/>
+            <ui:Button Content="{Binding ViewModel.IsPlaying, Converter={StaticResource PausePlayConverter}}"
+                        Command="{Binding ViewModel.PauseCommand}"  Margin="5" />
+            <ui:Button Content="▶|" Command="{Binding ViewModel.PlayRandomSongCommand}" Margin="5"/>
+            <Slider Minimum="0" Maximum="1.0" Width="100" Value="{Binding ViewModel.Volume}" VerticalAlignment="Center" 
+                IsSnapToTickEnabled="True" TickFrequency="0.005" Loaded="Slider_Loaded"  />
         </StackPanel>
+
+
+        <!-- Footer Section with Time Labels -->
+        <DockPanel Grid.Row="2" HorizontalAlignment="Center" Margin="10">
+            <Slider DockPanel.Dock="Top" Value="{Binding ViewModel.Progress}" 
+                    Height="10" Width="300" VerticalAlignment="Top" Margin="0 0 30 0"
+                    IsMoveToPointEnabled="True"
+                    x:Name="MySlider"
+                    Maximum="100"
+                    PreviewMouseDown="Slider_PreviewMouseDown"
+                    PreviewMouseUp="Slider_PreviewMouseUp"/>
+            <Label Content="{Binding ViewModel.CurrentPoint}" Width="50" HorizontalAlignment="Left" />
+            <Label Content="{Binding ViewModel.Duration}" Width="50" HorizontalAlignment="Right" />
+        </DockPanel>
     </Grid>
 </Page>
