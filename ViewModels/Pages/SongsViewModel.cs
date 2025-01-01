@@ -58,6 +58,9 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
             bitmap.CacheOption = BitmapCacheOption.OnLoad;
             bitmap.EndInit();
 
+            // Cache the loaded image
+            _imageCache[resourceName] = bitmap;
+
             return bitmap;
         }
 

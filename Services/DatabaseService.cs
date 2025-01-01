@@ -76,7 +76,6 @@ public class DatabaseService
     {
         if (File.Exists(filePath)) return;
         using StreamWriter writer = new(filePath);
-        writer.WriteLine($"sep={separator}");
     }
 
     private Song LineToSong(string line)
