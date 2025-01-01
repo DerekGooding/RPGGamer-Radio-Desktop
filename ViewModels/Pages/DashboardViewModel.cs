@@ -20,6 +20,14 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         [ObservableProperty]
         private SongImage _currentlyPlaying = new() { Song = new() { Game = "None", Title = "None" } };
 
+        [ObservableProperty]
+        private double _volume = 1.0;
+        partial void OnVolumeChanged(double value)
+        {
+            if (MediaElementService.MediaElement == null) return;
+            MediaElementService.MediaElement.Volume = value;
+        }
+
         public DashboardViewModel(MediaElementService mediaElementService)
         {
             MediaElementService = mediaElementService;

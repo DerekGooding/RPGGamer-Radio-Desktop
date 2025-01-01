@@ -11,10 +11,9 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         [ObservableProperty]
         private string _search = string.Empty;
         partial void OnSearchChanged(string value)
-            => SongImages = string.IsNullOrEmpty(value) ? _mediaElementService.SongImages
-            : [.. _mediaElementService.SongImages.
-                    Where(x => x.Song.Game.Contains(Search, StringComparison.CurrentCultureIgnoreCase) || x.Song.Title.Contains(Search, StringComparison.CurrentCultureIgnoreCase))
-                    .OrderBy(s => s.Song.Url)];
+            => SongImages = string.IsNullOrEmpty(value)
+            ? _mediaElementService.SongImages
+            : [.. _mediaElementService.SongImages.Where(MatchesSearch)];
 
         [ObservableProperty]
         private List<SongImage> _songImages = [];
@@ -34,5 +33,9 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
 
         [RelayCommand]
         public void Pause() => _mediaElementService.Pause();
+
+        private bool MatchesSearch(SongImage songImage)
+            => songImage.Song.Game.Contains(Search, StringComparison.CurrentCultureIgnoreCase)
+            || songImage.Song.Title.Contains(Search, StringComparison.CurrentCultureIgnoreCase);
     }
 }
