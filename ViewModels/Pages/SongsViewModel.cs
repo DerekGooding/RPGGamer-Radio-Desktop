@@ -1,68 +1,20 @@
-﻿using RPGGamer_Radio_Desktop.Helpers;
-using RPGGamer_Radio_Desktop.Models;
+﻿using RPGGamer_Radio_Desktop.Models;
 using RPGGamer_Radio_Desktop.Services;
-using System.IO;
-using System.Net.Http;
-using System.Reflection;
 using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using Wpf.Ui.Controls;
 
 namespace RPGGamer_Radio_Desktop.ViewModels.Pages
 {
     public partial class SongsViewModel(
         WebhookService webhookService,
-        DatabaseService databaseService,
         MediaElementService mediaElementService,
         NotificationService notificationService) : ObservableObject, INavigationAware
     {
         private readonly WebhookService _webhookService = webhookService;
-        private readonly DatabaseService _databaseService = databaseService;
         private readonly MediaElementService _mediaElementService = mediaElementService;
         private readonly NotificationService _notificationService = notificationService;
 
-        private bool _initialized;
 
-        private readonly Dictionary<string, BitmapImage> _imageCache = [];
-
-        private void Initialize()
-        {
-            if (_initialized) return;
-            _initialized = true;
-
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            string[] _imageSources = assembly.GetManifestResourceNames();
-            HashSet<string> imageSourceSet = new(_imageSources);
-
-            SongImages = _databaseService.Read()
-                    .ConvertAll(song => new SongImage(song, GetCachedImage(song, imageSourceSet, assembly, _imageSources)));
-        }
-
-        private ImageSource GetCachedImage(Song song, HashSet<string> imageSourceSet, Assembly assembly, string[] fallbackSources)
-        {
-            string resourceName = imageSourceSet.FirstOrDefault(name => name.Contains($"{song.Game}.jpg"))
-                                  ?? fallbackSources[1];
-
-            // Return from cache if already loaded
-            if (_imageCache.TryGetValue(resourceName, out BitmapImage? cachedImage))
-                return cachedImage;
-
-            // Load the image if not in cache
-            using Stream stream = assembly.GetManifestResourceStream(resourceName)
-                               ?? throw new FileNotFoundException($"Resource '{resourceName}' not found in assembly.");
-
-            BitmapImage bitmap = new();
-            bitmap.BeginInit();
-            bitmap.StreamSource = stream;
-            bitmap.CacheOption = BitmapCacheOption.OnLoad;
-            bitmap.EndInit();
-
-            // Cache the loaded image
-            _imageCache[resourceName] = bitmap;
-
-            return bitmap;
-        }
 
         [ObservableProperty]
         private string _status = "Ready";
@@ -95,45 +47,8 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
         [ObservableProperty]
         private List<SongImage> _songImages = [];
 
-        public void OnNavigatedTo() { Initialize(); }
+        public void OnNavigatedTo() { SongImages = _mediaElementService.SongImages; }
         public void OnNavigatedFrom() { }
-
-        public async Task LookForLinks()
-        {
-            string dataUrl = Path.Combine(_webhookService.ROOT, "data_");
-            var tasks = new List<Task>();
-            const int range = 4585;
-
-            for (int i = 1; i <= range; i++)
-            {
-                string digit = i.ToString();
-                while (digit.Length < 4)
-                    digit = "0" + digit;
-                char dataNumber = digit[0];
-                string url = $"{dataUrl}{dataNumber}/{digit}.dat";
-
-                await ReadSongInfoAsync(url, i);
-            }
-
-            Application.Current.Dispatcher.Invoke(() => Status = "");
-        }
-
-        private async Task ReadSongInfoAsync(string url, int id)
-        {
-            using HttpClient client = new();
-            HttpResponseMessage response = await client.GetAsync(url);
-            Stream streamToReadFrom = await response.Content.ReadAsStreamAsync();
-            var fileAbstraction = new StreamFileAbstraction(streamToReadFrom, "audio.mp3");
-            var file = TagLib.File.Create(fileAbstraction);
-            Song song = new()
-            {
-                Id = id,
-                Url = url,
-                Title = file.Tag.Title ?? "Unknown",
-                Game = file.Tag.Album ?? "Unknown"
-            };
-            _databaseService.Insert(song);
-        }
 
         private bool _subscribed;
 
