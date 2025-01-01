@@ -28,11 +28,8 @@ jobs:
     - name: Import certificate
       run: |
         $certPassword = ConvertTo-SecureString -String "${{ secrets.CERT_PASS }}" -Force -AsPlainText
-        $certPath = "RPGGamer-Radio-Desktop.Publish_TemporaryKey.pfx"
         $certBytes = [System.Convert]::FromBase64String("${{ secrets.CERTIFICATE_PFX }}")
-        [System.IO.File]::WriteAllBytes($certPath, $certBytes)
-        $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
-        $cert.Import($certPath, $certPassword, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
+        $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certBytes, $certPassword)
 
     - name: Build and Package MSIX
       run: |
