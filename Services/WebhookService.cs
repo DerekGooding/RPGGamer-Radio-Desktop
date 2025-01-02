@@ -7,7 +7,7 @@ namespace RPGGamer_Radio_Desktop.Services;
 
 public partial class WebhookService(DatabaseService databaseService)
 {
-    private readonly DatabaseService _databaseService = databaseService;
+    //private readonly DatabaseService _databaseService = databaseService;
 
     public readonly string ROOT = "http://www.rpgamers.net/radio/data/"; //  + data_# + / +  4 digit number .dat
 
@@ -43,6 +43,6 @@ public partial class WebhookService(DatabaseService databaseService)
             Title = file.Tag.Title ?? "Unknown",
             Game = file.Tag.Album ?? "Unknown"
         };
-        _databaseService.Insert(song);
+        //_databaseService.Insert(song);
     }
 }

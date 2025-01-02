@@ -1,4 +1,5 @@
 ﻿using RPGGamer_Radio_Desktop.Models;
+using System;
 using System.Collections.Concurrent;
 using System.IO;
 
@@ -8,63 +9,53 @@ public class DatabaseService
 {
     private const char separator = '|';
 
-    private readonly string _localAppData;
-    private readonly string _userFilePath;
-    private readonly string _database;
+    private readonly Uri _database = new("Assets\\Links\\database.csv", UriKind.Relative);
 
     private readonly ConcurrentQueue<Action> _writeQueue = new();
     private readonly SemaphoreSlim _writeSemaphore = new(1, 1);
 
     public DatabaseService()
     {
-        //_localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        //_userFilePath = Path.Combine(_localAppData, "RadioDesktop");
-        //_database = Path.Combine(_userFilePath, "database.csv");
-
-        //if (!Directory.Exists(_userFilePath))
-        //    Directory.CreateDirectory(_userFilePath);
-
-        //InitializeCSV("Assets\\Links\\database.csv");
         Task.Run(ProcessQueue);
     }
 
-    public void Insert(Song song)
-    {
-        _writeQueue.Enqueue(() => WriteToFile(() =>
-        {
-            using StreamWriter writer = new(_database, true);
-            writer.WriteLine(SongToLine(song));
-        }));
-    }
-    public void Update(Song song)
-    {
-        _writeQueue.Enqueue(() => WriteToFile(() =>
-        {
-            List<Song> list = Read();
-            int index = list.FindIndex(s => s.Id == song.Id);
-            list[index] = song;
-            using StreamWriter writer = new(_database, false);
-            foreach (Song s in list)
-                writer.WriteLine(SongToLine(s));
-        }));
-    }
+    //public void Insert(Song song)
+    //{
+    //    _writeQueue.Enqueue(() => WriteToFile(() =>
+    //    {
+    //        using StreamWriter writer = new(_database, true);
+    //        writer.WriteLine(SongToLine(song));
+    //    }));
+    //}
+    //public void Update(Song song)
+    //{
+    //    _writeQueue.Enqueue(() => WriteToFile(() =>
+    //    {
+    //        List<Song> list = Read();
+    //        int index = list.FindIndex(s => s.Id == song.Id);
+    //        list[index] = song;
+    //        using StreamWriter writer = new(_database, false);
+    //        foreach (Song s in list)
+    //            writer.WriteLine(SongToLine(s));
+    //    }));
+    //}
 
-    public void Delete(Song song)
-    {
-        _writeQueue.Enqueue(() => WriteToFile(() =>
-        {
-            List<Song> list = Read();
-            Song found = list.Find(s => s.Id == song.Id);
-            list.Remove(found);
-            using StreamWriter writer = new(_database, false);
-            foreach (Song s in list)
-                writer.WriteLine(SongToLine(s));
-        }));
-    }
+    //public void Delete(Song song)
+    //{
+    //    _writeQueue.Enqueue(() => WriteToFile(() =>
+    //    {
+    //        List<Song> list = Read();
+    //        Song found = list.Find(s => s.Id == song.Id);
+    //        list.Remove(found);
+    //        using Stream stream = Application.GetContentStream(_database).Stream;
+    //        using StreamWriter writer = new(stream);
+    //        foreach (Song s in list)
+    //            writer.WriteLine(SongToLine(s));
+    //    }));
+    //}
     public List<Song> Read()
     {
-        var uri = new Uri("Assets\\Links\\database.csv", UriKind.Relative);
-        using Stream stream = Application.GetContentStream(uri).Stream;
+        using Stream stream = Application.GetContentStream(_database).Stream;
         using StreamReader reader = new(stream);
         return reader
             .ReadToEnd()
@@ -74,11 +65,11 @@ public class DatabaseService
             .ToList();
     }
 
-    private void InitializeCSV(string filePath)
-    {
-        if (File.Exists(filePath)) return;
-        using StreamWriter writer = new(filePath);
-    }
+    //private void InitializeCSV(string filePath)
+    //{
+    //    if (File.Exists(filePath)) return;
+    //    using StreamWriter writer = new(filePath);
+    //}
 
     private Song LineToSong(string line)
     {
@@ -86,8 +77,8 @@ public class DatabaseService
         return new Song(int.Parse(parts[0]), parts[1], parts[2], parts[3]);
     }
 
-    private string SongToLine(Song song) 
-        => $"{song.Id}{separator}{song.Url}{separator}{song.Game}{separator}{song.Title}";
+    //private string SongToLine(Song song) 
+    //    => $"{song.Id}{separator}{song.Url}{separator}{song.Game}{separator}{song.Title}";
 
     private async Task ProcessQueue()
     {
@@ -112,5 +103,5 @@ public class DatabaseService
         }
     }
 
-    private void WriteToFile(Action writeAction) => writeAction();
+    //private void WriteToFile(Action writeAction) => writeAction();
 }

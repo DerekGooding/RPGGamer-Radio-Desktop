@@ -54,12 +54,12 @@ public static class Updater
 
     private class Release
     {
-        public string TagName { get; set; }
-        public Asset[] Assets { get; set; }
+        public string TagName { get; set; } = string.Empty;
+        public Asset[] Assets { get; set; } = [];
     }
 
     private class Asset
     {
-        public string BrowserDownloadUrl { get; set; }
+        public string BrowserDownloadUrl { get; set; } = string.Empty;
     }
 }

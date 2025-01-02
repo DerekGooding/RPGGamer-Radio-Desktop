@@ -74,7 +74,7 @@ namespace RPGGamer_Radio_Desktop
         /// <summary>
         /// Occurs when the application is loading.
         /// </summary>
-        private async void OnStartup(object sender, StartupEventArgs e)
+        private void OnStartup(object sender, StartupEventArgs e)
         {
             //await Updater.CheckForUpdatesAsync();
 
