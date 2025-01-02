@@ -28,8 +28,14 @@ jobs:
     - name: Import certificate
       run: |
         $certPassword = ConvertTo-SecureString -String "${{ secrets.CERT_PASS }}" -Force -AsPlainText
-        $certBytes = [System.Convert]::FromBase64String("${{ secrets.CERTIFICATE_PFX }}")
+        $certBytes = [System.Convert]::FromBase64String("${{ secrets.CERT_PFX }}")
+        
+        if ($certBytes.Length -eq 0) {
+          Write-Error "Certificate is empty or null!"
+          exit 1
+        }
         $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certBytes, $certPassword)
+
 
     - name: Build and Package MSIX
       run: |
