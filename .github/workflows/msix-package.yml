@@ -34,7 +34,8 @@ jobs:
           Write-Error "Certificate is empty or null!"
           exit 1
         }
-        $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certBytes, $certPassword)
+        $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
+        $cert.Import($certBytes, $certPassword, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
 
 
     - name: Build and Package MSIX
