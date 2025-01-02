@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RPGGamer-Radio-Desktop", "R
 EndProject
 Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "RPGGamer-Radio-Desktop.Publish", "RPGGamer_Radio_Desktop.Publish\RPGGamer-Radio-Desktop.Publish.wapproj", "{DA1D2F4A-053C-4E93-B505-A2C9E87C6487}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RPGGamer-Radio-Desktop.Testing", "RPGGamer-Radio-Desktop.Testing\RPGGamer-Radio-Desktop.Testing.csproj", "{93C94ADD-C586-42AF-9C66-60364A7EC911}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,26 @@ Global
 		{DA1D2F4A-053C-4E93-B505-A2C9E87C6487}.Release|x86.ActiveCfg = Release|x86
 		{DA1D2F4A-053C-4E93-B505-A2C9E87C6487}.Release|x86.Build.0 = Release|x86
 		{DA1D2F4A-053C-4E93-B505-A2C9E87C6487}.Release|x86.Deploy.0 = Release|x86
+		{93C94ADD-C586-42AF-9C66-60364A7EC911}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93C94ADD-C586-42AF-9C66-60364A7EC911}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93C94ADD-C586-42AF-9C66-60364A7EC911}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{93C94ADD-C586-42AF-9C66-60364A7EC911}.Debug|ARM.Build.0 = Debug|Any CPU
+		{93C94ADD-C586-42AF-9C66-60364A7EC911}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{93C94ADD-C586-42AF-9C66-60364A7EC911}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{93C94ADD-C586-42AF-9C66-60364A7EC911}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{93C94ADD-C586-42AF-9C66-60364A7EC911}.Debug|x64.Build.0 = Debug|Any CPU
+		{93C94ADD-C586-42AF-9C66-60364A7EC911}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{93C94ADD-C586-42AF-9C66-60364A7EC911}.Debug|x86.Build.0 = Debug|Any CPU
+		{93C94ADD-C586-42AF-9C66-60364A7EC911}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93C94ADD-C586-42AF-9C66-60364A7EC911}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93C94ADD-C586-42AF-9C66-60364A7EC911}.Release|ARM.ActiveCfg = Release|Any CPU
+		{93C94ADD-C586-42AF-9C66-60364A7EC911}.Release|ARM.Build.0 = Release|Any CPU
+		{93C94ADD-C586-42AF-9C66-60364A7EC911}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{93C94ADD-C586-42AF-9C66-60364A7EC911}.Release|ARM64.Build.0 = Release|Any CPU
+		{93C94ADD-C586-42AF-9C66-60364A7EC911}.Release|x64.ActiveCfg = Release|Any CPU
+		{93C94ADD-C586-42AF-9C66-60364A7EC911}.Release|x64.Build.0 = Release|Any CPU
+		{93C94ADD-C586-42AF-9C66-60364A7EC911}.Release|x86.ActiveCfg = Release|Any CPU
+		{93C94ADD-C586-42AF-9C66-60364A7EC911}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
