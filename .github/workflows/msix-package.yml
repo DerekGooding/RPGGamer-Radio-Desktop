@@ -39,7 +39,7 @@ jobs:
 
     - name: Build and Package MSIX
       run: |
-        msbuild D:\a\RPGGamer-Radio-Desktop\RPGGamer-Radio-Desktop\RPGGamer_Radio_Desktop.Publish\RPGGamer-Radio-Desktop.Publish.wapproj /p:Configuration=Release /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload /p:CertificateThumbprint="${{ secrets.CERTIFICATE_THUMBPRINT }}" /p:CertificatePassword="${{ secrets.Cert_Pass }}"
+        msbuild D:\a\RPGGamer-Radio-Desktop\RPGGamer-Radio-Desktop\RPGGamer_Radio_Desktop.Publish\RPGGamer-Radio-Desktop.Publish.wapproj /p:Configuration=Release /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload /p:CertificateThumbprint="${{ secrets.CERTIFICATE_THUMBPRINT }}" /p:CertificatePassword="${{ secrets.CERT_PASS }}"
 
     - name: Create Release
       id: create_release
