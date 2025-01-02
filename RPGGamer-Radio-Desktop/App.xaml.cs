@@ -43,7 +43,8 @@ namespace RPGGamer_Radio_Desktop
                 // Service containing navigation, same as INavigationWindow... but without window
                 services.AddSingleton<INavigationService, NavigationService>();
 
-                services.AddSingleton<AudioService>();
+                //services.AddSingleton<AudioService>();
+
                 services.AddSingleton<WebhookService>();
                 services.AddSingleton<DatabaseService>();
                 services.AddSingleton<NotificationService>();

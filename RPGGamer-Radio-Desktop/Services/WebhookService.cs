@@ -5,7 +5,7 @@ using System.Net.Http;
 
 namespace RPGGamer_Radio_Desktop.Services;
 
-public partial class WebhookService(DatabaseService databaseService)
+public partial class WebhookService()
 {
     //private readonly DatabaseService _databaseService = databaseService;
 

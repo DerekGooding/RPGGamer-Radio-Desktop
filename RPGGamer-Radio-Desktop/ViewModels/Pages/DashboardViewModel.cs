@@ -10,7 +10,7 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
     public partial class DashboardViewModel : ObservableObject
     {
         private readonly MediaElementService _mediaElementService;
-        private readonly AudioService _audioService;
+        //private readonly AudioService _audioService;
 
         private bool _isSeeking;
 
@@ -40,12 +40,12 @@ namespace RPGGamer_Radio_Desktop.ViewModels.Pages
             _mediaElementService.MediaElement.Volume = value;
         }
 
-        public DashboardViewModel(MediaElementService mediaElementService, AudioService audioService)
+        public DashboardViewModel(MediaElementService mediaElementService)//, AudioService audioService)
         {
             _mediaElementService = mediaElementService;
             _mediaElementService.SongChange += HandleSongChange;
             _mediaElementService.PlayStatusChange += HandlePlayStatusChange;
-            _audioService = audioService;
+            //_audioService = audioService;
 
             StartTimer();
         }
