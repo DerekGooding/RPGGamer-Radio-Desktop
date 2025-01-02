@@ -37,6 +37,11 @@ jobs:
         $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
         $cert.Import($certBytes, $certPassword, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
 
+        $certStore = New-Object System.Security.Cryptography.X509Certificates.X509Store('My', 'LocalMachine')
+        $certStore.Open('ReadWrite')
+        $certStore.Add($cert)
+        $certStore.Close()
+
 
     - name: Build and Package MSIX
       run: |
