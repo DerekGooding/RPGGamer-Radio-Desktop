@@ -34,8 +34,7 @@ jobs:
           Write-Error "Certificate is empty or null!"
           exit 1
         }
-        $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
-        $cert.Import($certBytes, $certPassword, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
+        $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certBytes, $certPassword)
 
         $certStore = New-Object System.Security.Cryptography.X509Certificates.X509Store('My', 'LocalMachine')
         $certStore.Open('ReadWrite')
