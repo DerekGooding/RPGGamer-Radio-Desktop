@@ -4,13 +4,14 @@
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  IgnorableNamespaces="uap rescap">
-
-  <Identity
-    Name="DerekGooding.RPGGamerRadio"
-    Publisher="CN=Derek"
-    Version="1.0.0.0" />
-
+  xmlns:uap18="http://schemas.microsoft.com/appx/manifest/uap/windows10/18"
+  IgnorableNamespaces="uap rescap uap18">
+	
+	<Identity
+	  Name="DerekGooding.RPGGamerRadio"
+	  Publisher="CN=5F0B1BCB-5A8C-4A2B-8901-D449193C306D"
+	  Version="1.0.0.0" />
+	
   <Properties>
     <DisplayName>RPGGamer Radio</DisplayName>
     <PublisherDisplayName>Derek Gooding</PublisherDisplayName>
@@ -29,7 +30,7 @@
   <Applications>
     <Application Id="App"
       Executable="$targetnametoken$.exe"
-      EntryPoint="$targetentrypoint$">
+      EntryPoint="$targetentrypoint$" uap18:TrustLevel="appContainer" uap18:RuntimeBehavior="packagedClassicApp">
       <uap:VisualElements
         DisplayName="RPGGamer-Radio-Desktop.Publish"
         Description="RPGGamer-Radio-Desktop.Publish"
